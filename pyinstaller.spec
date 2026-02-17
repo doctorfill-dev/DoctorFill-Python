@@ -41,7 +41,7 @@ def get_target_triple():
 TARGET_TRIPLE = get_target_triple()
 
 a = Analysis(
-    ["src/web/app.py"],
+    ["server.py"],
     pathex=["."],
     binaries=[],
     datas=[

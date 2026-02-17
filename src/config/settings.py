@@ -19,18 +19,38 @@ load_dotenv()
 # Paths
 # ──────────────────────────────────────────────────────────────
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-TEMPLATES_DIR = PROJECT_ROOT / "templates"
-FORMS_DIR = PROJECT_ROOT / "forms"
-DATA_DIR = PROJECT_ROOT / "data"
-LOGS_DIR = PROJECT_ROOT / "logs"
+import sys
+
+_FROZEN = getattr(sys, '_MEIPASS', None)
+
+if _FROZEN:
+    # PyInstaller bundle: read-only assets are in _MEIPASS,
+    # writable dirs (data, logs) live next to the executable.
+    _BUNDLE_DIR = Path(_FROZEN)
+    _APP_DIR = Path(sys.executable).parent
+    TEMPLATES_DIR = _BUNDLE_DIR / "templates"
+    FORMS_DIR = _BUNDLE_DIR / "forms"
+    DATA_DIR = _APP_DIR / "data"
+    LOGS_DIR = _APP_DIR / "logs"
+    PROJECT_ROOT = _APP_DIR
+else:
+    # Normal development mode
+    PROJECT_ROOT = Path(__file__).parent.parent.parent
+    TEMPLATES_DIR = PROJECT_ROOT / "templates"
+    FORMS_DIR = PROJECT_ROOT / "forms"
+    DATA_DIR = PROJECT_ROOT / "data"
+    LOGS_DIR = PROJECT_ROOT / "logs"
+
 LOG_JSON_DIR = LOGS_DIR / "json"
 LOG_XML_DIR = LOGS_DIR / "xml"
 LOG_PDF_DIR = LOGS_DIR / "pdf"
 
-# Ensure directories exist
+# Ensure writable directories exist
 for dir_path in [TEMPLATES_DIR, FORMS_DIR, DATA_DIR, LOGS_DIR, LOG_JSON_DIR, LOG_XML_DIR, LOG_PDF_DIR]:
-    dir_path.mkdir(parents=True, exist_ok=True)
+    try:
+        dir_path.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass  # Read-only dirs (in bundle) may fail, that's OK
 
 # ──────────────────────────────────────────────────────────────
 # User config (API keys from setup screen take priority)

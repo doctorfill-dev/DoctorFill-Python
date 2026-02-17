@@ -17,9 +17,6 @@ jobs:
           - platform: macos-latest
             target: aarch64-apple-darwin
             python-version: "3.12"
-          - platform: macos-latest
-            target: x86_64-apple-darwin
-            python-version: "3.12"
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             python-version: "3.12"
