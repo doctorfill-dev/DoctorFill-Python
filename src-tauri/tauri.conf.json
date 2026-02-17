@@ -41,14 +41,7 @@
   },
   "plugins": {
     "shell": {
-      "open": true,
-      "scope": [
-        {
-          "name": "doctorfill-server",
-          "cmd": "binaries/doctorfill-server",
-          "args": true
-        }
-      ]
+      "open": true
     }
   }
 }
