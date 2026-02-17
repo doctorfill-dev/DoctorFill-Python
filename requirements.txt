@@ -1,0 +1,23 @@
+# Core
+flask>=3.1.0
+python-dotenv>=1.0.0
+requests>=2.32.0
+
+# PDF Processing
+pymupdf>=1.26.0
+pypdf>=5.4.0
+pikepdf>=9.7.0
+lxml>=5.3.0
+
+# AI/RAG
+chromadb
+openai>=1.0.0
+tiktoken>=0.5.0
+tqdm>=4.66.0
+numpy>=1.24.0
+
+# JSON handling
+json-repair>=0.4.0
+
+# Optional: for local reranking
+# sentence-transformers>=2.2.0

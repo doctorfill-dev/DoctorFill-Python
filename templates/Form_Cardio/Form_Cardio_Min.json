@@ -1,0 +1,59 @@
+[
+  {"id": "1.1", "question": "Quel est le nom du patient (uniquement le nom) ?"},
+  {"id": "1.2", "question": "Quel est le prénom du patient ?"},
+  {"id": "1.3", "question": "Quel est la rue du patient ?"},
+  {"id": "1.4", "question": "Quel est le NPA du patient ?"},
+  {"id": "1.5", "question": "Quel est la localité du patient ?"},
+  {"id": "1.6", "question": "Quel est la date de naissance du patient (format jj.mm.aaaa) ?"},
+  {"id": "1.7", "question": "Quel est le numéro AVS du patient ?"},
+  {"id": "1.8", "question": "Quel est le numéro de téléphone du patient "},
+  {"id": "1.9", "question": "Quel est le adresse e-mail du patient "},
+  {"id": "1.10", "question": "Quel est le sexe du patient (H/F) ?"},
+
+  {"id": "2.1", "question": "Quel est le GLN du destinataire ?"},
+  {"id": "2.2", "question": "Quel est le numéro RCC du destinataire ?"},
+  {"id": "2.3", "question": "Quel est l'e-mail du destinataire ?"},
+  {"id": "2.4", "question": "Quel est l'adresse du destinataire (max 250 caractères) ?"},
+
+  {"id": "3.1", "question": "Quel est l'adresse de l'assurance (max 250 caractères) ?"},
+  {"id": "3.2", "question": "Quel est le numéro GLN de l'assurance ?"},
+
+  {"id": "4.1", "question": "Quel est le motif du traitement parmi la liste à choix unique : Maladie, Accident, Grossesse, Prévention, Infirmité congénitale, Inconnue ?"},
+  {"id": "4.2", "question": "Quel est la loi applicable parmi la liste à choix unique : KVG, VVG, UVG, IVG, MVG ?"},
+  {"id": "4.3", "question": "Quel est le numéro d'assuré ?"},
+  {"id": "4.4", "question": "Quel est le numéro d'accident ?"},
+  {"id": "4.5", "question": "Quel est la date de l'accident ?"},
+
+  {"id": "5.1", "question": "Est-ce que l'examen est urgent ? Réponse soit ON ou OFF"},
+  {"id": "5.2", "question": "Quel est le choix de la date d'examen, parmi ces trois choix : Patient se présente ( mettre 0) / planification (mettre 1) / confirmation (mettre 2))"},
+  {"id": "5.3", "question": "Date à partir du (si planification) - format jj.mm.aaaa"},
+  {"id": "5.4", "question": "Date de rendez-vous fixé (si confirmation) - format jj.mm.aaaa"},
+
+  {"id": "6.1", "question": "ECG demandé ? Réponse soit ON ou OFF"},
+  {"id": "6.2", "question": "ECG 72h demandé ? Réponse soit ON ou OFF"},
+  {"id": "6.3", "question": "Contrôle tension 24h demandé ? Réponse soit ON ou OFF"},
+  {"id": "6.4", "question": "Ergométrie de stress demandée ? Réponse soit ON ou OFF"},
+  {"id": "6.5", "question": "Échocardiographie de stress demandée ? Réponse soit ON ou OFF"},
+  {"id": "6.6", "question": "ECG 24h demandé ? Réponse soit ON ou OFF"},
+  {"id": "6.7", "question": "Holter ECG demandé ? Réponse soit ON ou OFF"},
+  {"id": "6.8", "question": "Échocardiographie demandée ? Réponse soit ON ou OFF"},
+  {"id": "6.9", "question": "Contrôle pacemaker demandé ? Réponse soit ON ou OFF"},
+  {"id": "6.10", "question": "Y-a-t-il d'autre examen demandé ? ? Réponse soit ON ou OFF"},
+  {"id": "6.11", "question": "Quels sont les autres examens demandés ? (max 100 caractères)"},
+
+  {"id": "7.1", "question": "Quelle est l'anamnèse du patient (max 4000 caractères). Si tu n'as pas assez de place insères le reste du texte sous l'id 10.1}"},
+
+  {"id": "8.1", "question": "Quel est le nom, prénom et l'adresse du spécialiste (max 250 caractères) ?"},
+  {"id": "8.2", "question": "Quel est l'e-mail du spécialiste ?"},
+  {"id": "8.3", "question": "Quel est le numéro GLN du spécialiste ?"},
+  {"id": "8.4", "question": "Quel est le numéro de téléphone du spécialiste ?"},
+  {"id": "8.5", "question": "Quel est le numéro RCC du spécialiste ?"},
+
+  {"id": "9.1", "question": "Quel est le nom, prénom et l'adresse du médecin de famille (max 250 caractères) ?"},
+  {"id": "9.2", "question": "Quel est l'e-mail du médecin de famille"},
+  {"id": "9.3", "question": "Quel est le numéro GLN du médecin de famille"},
+  {"id": "9.4", "question": "Quel est le numéro de téléphone du médecin de famille"},
+  {"id": "9.5", "question": "Quel est le numéro RCC du médecin de famille"},
+
+  {"id": "10.1", "question": "Remarques générales (si non, ne rien remplir)  (max 5600 caractères)"}
+]

@@ -1,0 +1,312 @@
+{
+  "fields": [
+    {
+      "id": "1.1",
+      "question": "Ne répond rien"
+    },
+    {
+      "id": "1.2",
+      "question": "Quel est le canton Suisse de traitement ? [format : deux lettre, ex. : NE]"
+    },
+    {
+      "id": "2.1",
+      "question": "Quel est le prénom du patient ?"
+    },
+    {
+      "id": "2.2",
+      "question": "Quel est le nom du patient ?"
+    },
+    {
+      "id": "2.3",
+      "question": "Quelle est la date de naissance du patient ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "2.4",
+      "question": "Quel est le numéro AVS du patient ? [format : 756.XXXX.XXXX.XX]"
+    },
+    {
+      "id": "2.5",
+      "question": "Quelle est la rue du patient ?"
+    },
+    {
+      "id": "2.6",
+      "question": "Quelle est la ville du patient ?"
+    },
+    {
+      "id": "2.7",
+      "question": "Quel est le code postal du patient ?"
+    },
+    {
+      "id": "2.8",
+      "question": "Quel est le téléphone du patient ? [format : 079/000.00.00]"
+    },
+    {
+      "id": "2.9",
+      "question": "Quel est le sexe du patient ? [format : M/F]"
+    },
+    {
+      "id": "2.10",
+      "question": "Quel est le téléphone du médecin de famille ? [format : 079/000.00.00]"
+    },
+    {
+      "id": "2.11",
+      "question": "Où en est la procédure ?"
+    },
+    {
+      "id": "2.12",
+      "question": "Quel est le créneau horaire pour joindre le médecin de famille ?"
+    },
+    {
+      "id": "2.13",
+      "question": "Quel est le téléphone du médecin spécialiste ? [format : 079/000.00.00]"
+    },
+    {
+      "id": "2.14",
+      "question": "Quel est le créneau horaire pour joindre le médecin spécialiste ?"
+    },
+    {
+      "id": "3.1",
+      "question": "Quelle est la fréquence du traitement ?"
+    },
+    {
+      "id": "3.2",
+      "question": "Quelle est la date de début du traitement ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.3",
+      "question": "Quelle est la date de fin du traitement ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.4",
+      "question": "Quelle est la dernière date de contrôle ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.5",
+      "question": "Par qui on été effectué les contrôles précédent ?"
+    },
+    {
+      "id": "3.6",
+      "question": "Par qui on été effecuté les contrôles a une date ultérieur ?"
+    },
+    {
+      "id": "3.7",
+      "question": "Y a-t-il d’autres intervenants (médecins spécialistes, hôpitaux ou thérapeutes) ?"
+    },
+    {
+      "id": "3.8",
+      "question": "Pour quelles activités avez-vous attesté une incapacité de travail?"
+    },
+    {
+      "id": "3.9",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 1 ?"
+    },
+    {
+      "id": "3.10",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 1 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.11",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 1 ?[format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.12",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 2 ?"
+    },
+    {
+      "id": "3.13",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 2 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.14",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 2 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.15",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 3 ?"
+    },
+    {
+      "id": "3.16",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 3 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.17",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 3 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.18",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 4 ?"
+    },
+    {
+      "id": "3.29",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 4 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.20",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 4 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.21",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 5 ?"
+    },
+    {
+      "id": "3.22",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 5 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.23",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 5 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.24",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 6 ?"
+    },
+    {
+      "id": "3.25",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 6 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.26",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 6 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.27",
+      "question": "Quelle est, jusqu’à aujourd’hui, l’évolution de l’incapacité de travail attestée médicalement (en pour cent) pour la période 7 ?"
+    },
+    {
+      "id": "3.28",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de début de l’incapacité de travail pour la période 7 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "3.29",
+      "question": "Quelle est, jusqu’à aujourd’hui, la date de fin de l’incapacité de travail pour la période 7 ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "4.1",
+      "question": "Quels sont les antécédents médicaux et l'évolution de la situation du patient/de la patiente ?"
+    },
+    {
+      "id": "4.2",
+      "question": "Quel est la situation et les symptômes médicaux actuels ?"
+    },
+    {
+      "id": "4.3",
+      "question": "Quel est le diagnostics ayant une incidence sur la capacité de travail (pour les affections psychiatriques, veuillez indiquer le code CIM-10 ou DSM-5.) ? Quand ces diagnostics ont-ils été posés?"
+    },
+    {
+      "id": "4.4",
+      "question": "Quels sont les constats médicaux complets sur la base des examens que vous avez pratiqués ?"
+    },
+    {
+      "id": "4.5",
+      "question": "Quelle est la médication actuelle (y compris le dosage) ?"
+    },
+    {
+      "id": "4.6",
+      "question": "Quel est votre pronostic sur la capacité du travail du patient/de la patiente ?"
+    },
+    {
+      "id": "4.7",
+      "question": "Quels sont les diagnostics sans incidence sur la capacité de travail ? Quand ces diagnostics ont-ils été posés ?"
+    },
+    {
+      "id": "4.8",
+      "question": "Quels sont les prochaines mesures envisagées ? Quel est la plan de traitement (thérapies, opérations, médication) ?"
+    },
+    {
+      "id": "5.1",
+      "question": "Quelle est l’activité actuelle de votre patient / votre patiente?"
+    },
+    {
+      "id": "5.1.1",
+      "question": "Êtes-vous en mesure de répondre à question 5.1 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "5.2",
+      "question": "Quelles sont les informations dont vous disposez sur la situation professionnelle de votre patient / votre patiente?"
+    },
+    {
+      "id": "5.2.1",
+      "question": "Aucune information pour la question 5.2 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "5.3",
+      "question": "A quelles exigences votre patient/patiente doit-il/elle faire face dans son activité professionnelle? (par exemple: effort physique / activité alternée / répétitive / fonction de cadre / travail par rotation d'équipes / travail en équipe / contact avec les clients, ou toute autre particularité.)"
+    },
+    {
+      "id": "5.3.1",
+      "question": "Êtes-vous en mesure de répondre à la question 5.3 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "5.4",
+      "question": "Existe-t-il des limitations fonctionnelles? Quels effets ont-elles sur l’activité que le patient a exercée jusqu’ici? Veuillez décrire les limitations fonctionnelles"
+    },
+    {
+      "id": "5.4.1",
+      "question": "Êtes-vous en mesure de répondre à la question 5.4 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "5.5",
+      "question": "Votre patient/votre patiente dispose-t-il/elle de ressources qui pourraient être utiles pour sa réinsertion? (par exemple: connaissances linguistiques / formations continues / activités de la vie quotidienne / activités bénévoles / hobbys / temps libre / contacts avec des amis / voyages)"
+    },
+    {
+      "id": "5.5.1",
+      "question": "Êtes-vous en mesure de répondre à la question 5.5 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "5.6",
+      "question": "Avez-vous des doutes quant à sa capacité de conduire? Lesquels?"
+    },
+    {
+      "id": "5.6.1",
+      "question": "Êtes-vous en mesure de répondre à la question 5.6 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "6.1",
+      "question": "Combien d’heures de travail par jour peut-on raisonnablement attendre de votre patient/votre patiente dans l’activité qu’il/elle a exercée jusqu’ici?"
+    },
+    {
+      "id": "6.1.1",
+      "question": "Êtes-vous en mesure de répondre à la question 6.1 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "6.2",
+      "question": "Combien d’heures de travail par jour peut-on raisonnablement attendre de votre patient/votre patiente dans une activité qui tienne compte de l’atteinte à sa santé?"
+    },
+    {
+      "id": "6.3",
+      "question": "Quel est le pronostic sur le potentiel de réadaptation du patient"
+    },
+    {
+      "id": "6.4",
+      "question": "Quels sont les facteurs qui font obstacle à une réadaptation?"
+    },
+    {
+      "id": "6.5",
+      "question": "Quels sont les facteurs qui font obstacle à une réadaptation?"
+    },
+    {
+      "id": "6.5.1",
+      "question": "Êtes-vous en mesure de répondre à la question 6.5 ? [format : oui => 1 ; non => 0]"
+    },
+    {
+      "id": "7.1",
+      "question": "Quels autres éléments pourraient entrer en ligne de compte dans l’évaluation de la situation de votre patient ? Avez-vous d’autres informations à nous communiquer?"
+    },
+    {
+      "id": "7.2",
+      "question": "Quel est le prénom et nom du médecin ?"
+    },
+    {
+      "id": "7.3",
+      "question": "Quelle est l'adresse du médecin (ou cabinet/service) ?"
+    },
+    {
+      "id": "7.4",
+      "question": "Quelle est la date du jour ? [format : jj.mm.aaaa]"
+    },
+    {
+      "id": "7.5",
+      "question": "Y a-t-il des annexes supplémentaires ?"
+    }
+  ]
+}

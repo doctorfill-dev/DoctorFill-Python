@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoctorFill - Remplissage intelligent de formulaires</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            color: #444;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        label small {
+            font-weight: 400;
+            color: #999;
+        }
+
+        select, input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+            transition: border-color 0.2s;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select:focus, input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-upload {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-upload:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .file-upload.dragover {
+            border-color: #667eea;
+            background: #f0f3ff;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .file-upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-upload-text {
+            color: #666;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: #f5f5f5;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-item button {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #444;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.6rem 1rem;
+            width: auto;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #eee;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .status {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .status.loading {
+            display: block;
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.success {
+            display: block;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status.error {
+            display: block;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #1976d2;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 2rem;
+            font-size: 0.85rem;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Setup screen */
+        .setup-info {
+            background: #f0f3ff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        .provider-fields { margin-top: 0.5rem; }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .config-link {
+            font-size: 0.85rem;
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .config-link:hover { color: #764ba2; }
+
+        .browse-link {
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .browse-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ==================== SETUP SCREEN ==================== -->
+        <div class="card hidden" id="setupScreen">
+            <h1>DoctorFill</h1>
+            <h2>Configuration</h2>
+
+            <div class="setup-info">
+                Avant d'utiliser DoctorFill, configurez votre fournisseur d'IA.
+                Vous aurez besoin de vos identifiants API.
+            </div>
+
+            <form id="setupForm">
+                <div class="form-group">
+                    <label for="setupProvider">Fournisseur LLM</label>
+                    <select id="setupProvider">
+                        <option value="infomaniak">Infomaniak AI</option>
+                        <option value="local">LM Studio (local)</option>
+                    </select>
+                </div>
+
+                <div id="ifkFields" class="provider-fields">
+                    <div class="form-group">
+                        <label for="setupProductId">Product ID</label>
+                        <input type="text" id="setupProductId" placeholder="ex: 123456">
+                    </div>
+                    <div class="form-group">
+                        <label for="setupApiToken">API Token</label>
+                        <input type="password" id="setupApiToken" placeholder="Votre token API Infomaniak">
+                    </div>
+                </div>
+
+                <div id="localFields" class="provider-fields hidden">
+                    <div class="form-group">
+                        <label for="setupLmUrl">URL LM Studio</label>
+                        <input type="text" id="setupLmUrl" placeholder="http://localhost:1234/v1">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="setupBtn">
+                    Sauvegarder et continuer
+                </button>
+
+                <div class="status" id="setupStatus"></div>
+            </form>
+        </div>
+
+        <!-- ==================== MAIN SCREEN ==================== -->
+        <div class="card hidden" id="mainScreen">
+            <div class="header-row">
+                <h1>DoctorFill</h1>
+                <span class="config-link" id="openSetup">Configuration</span>
+            </div>
+            <p class="subtitle">Remplissage intelligent de formulaires medicaux</p>
+
+            <form id="fillForm">
+                <div class="form-group">
+                    <label for="formSelect">Formulaire</label>
+                    <select id="formSelect" required>
+                        <option value="">Chargement...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Rapports medicaux (PDF ou TXT)</label>
+                    <div class="file-upload" id="dropZone">
+                        <input type="file" id="fileInput" accept=".pdf,.txt" multiple>
+                        <input type="file" id="folderInput" webkitdirectory multiple style="display:none">
+                        <div class="file-upload-icon">+</div>
+                        <div class="file-upload-text">
+                            Glissez vos fichiers <strong>ou un dossier</strong> ici
+                            <br><span id="browseFile" class="browse-link">Parcourir fichiers</span> | <span id="browseFolder" class="browse-link">Parcourir dossier</span>
+                            <br><small style="color: #999;">Formats acceptes : PDF, TXT</small>
+                        </div>
+                    </div>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn" disabled>
+                    Remplir le formulaire
+                </button>
+            </form>
+
+            <div class="status" id="status"></div>
+        </div>
+
+        <footer>
+            DoctorFill - RAG + XFA PDF Form Filling
+        </footer>
+    </div>
+
+    <script>
+        // ──────────────────────────────────────────────────
+        // Elements
+        // ──────────────────────────────────────────────────
+        const setupScreen = document.getElementById('setupScreen');
+        const mainScreen = document.getElementById('mainScreen');
+
+        // Setup elements
+        const setupForm = document.getElementById('setupForm');
+        const setupProvider = document.getElementById('setupProvider');
+        const ifkFields = document.getElementById('ifkFields');
+        const localFields = document.getElementById('localFields');
+        const setupProductId = document.getElementById('setupProductId');
+        const setupApiToken = document.getElementById('setupApiToken');
+        const setupLmUrl = document.getElementById('setupLmUrl');
+        const setupBtn = document.getElementById('setupBtn');
+        const setupStatus = document.getElementById('setupStatus');
+
+        // Main elements
+        const formSelect = document.getElementById('formSelect');
+        const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileList = document.getElementById('fileList');
+        const submitBtn = document.getElementById('submitBtn');
+        const status = document.getElementById('status');
+        const form = document.getElementById('fillForm');
+        const openSetup = document.getElementById('openSetup');
+        const browseFile = document.getElementById('browseFile');
+        const browseFolder = document.getElementById('browseFolder');
+
+        let selectedFiles = [];
+        const ALLOWED_EXTENSIONS = ['.pdf', '.txt'];
+
+        // ──────────────────────────────────────────────────
+        // Screen navigation
+        // ──────────────────────────────────────────────────
+        function showSetup() {
+            setupScreen.classList.remove('hidden');
+            mainScreen.classList.add('hidden');
+            // Load existing config into form
+            fetch('/config')
+                .then(r => r.json())
+                .then(data => {
+                    const cfg = data.config;
+                    setupProvider.value = cfg.llm_provider || 'infomaniak';
+                    setupProductId.value = cfg.ifk_product_id || '';
+                    // Don't pre-fill masked token — leave empty so user knows to re-enter
+                    setupApiToken.value = '';
+                    setupApiToken.placeholder = data.configured ? 'Deja configure (laisser vide pour garder)' : 'Votre token API Infomaniak';
+                    setupLmUrl.value = cfg.lmstudio_base_url || 'http://localhost:1234/v1';
+                    toggleProviderFields();
+                });
+        }
+
+        function showMain() {
+            mainScreen.classList.remove('hidden');
+            setupScreen.classList.add('hidden');
+            loadForms();
+        }
+
+        function toggleProviderFields() {
+            const isLocal = setupProvider.value === 'local';
+            ifkFields.classList.toggle('hidden', isLocal);
+            localFields.classList.toggle('hidden', !isLocal);
+        }
+
+        setupProvider.addEventListener('change', toggleProviderFields);
+        openSetup.addEventListener('click', showSetup);
+
+        // ──────────────────────────────────────────────────
+        // Setup form submission
+        // ──────────────────────────────────────────────────
+        setupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            setupBtn.disabled = true;
+            setupStatus.className = 'status loading';
+            setupStatus.textContent = 'Sauvegarde en cours...';
+
+            const payload = { llm_provider: setupProvider.value };
+
+            if (setupProvider.value === 'infomaniak') {
+                payload.ifk_product_id = setupProductId.value.trim();
+                // Only send token if user typed a new one
+                if (setupApiToken.value.trim()) {
+                    payload.ifk_api_token = setupApiToken.value.trim();
+                }
+            } else {
+                payload.lmstudio_base_url = setupLmUrl.value.trim();
+            }
+
+            try {
+                const saveRes = await fetch('/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const saveData = await saveRes.json();
+
+                if (!saveData.ok) {
+                    throw new Error(saveData.error || 'Erreur de sauvegarde');
+                }
+
+                // Test connection
+                setupStatus.textContent = 'Test de connexion...';
+                const testRes = await fetch('/config/test', { method: 'POST' });
+                const testData = await testRes.json();
+
+                if (testData.ok) {
+                    setupStatus.className = 'status success';
+                    setupStatus.textContent = 'Connexion reussie !';
+                    setTimeout(showMain, 1000);
+                } else {
+                    setupStatus.className = 'status success';
+                    setupStatus.textContent = 'Configuration sauvegardee. Connexion non verifiee : ' + (testData.error || 'serveur injoignable');
+                    setTimeout(showMain, 2000);
+                }
+            } catch (err) {
+                setupStatus.className = 'status error';
+                setupStatus.textContent = err.message;
+            } finally {
+                setupBtn.disabled = false;
+            }
+        });
+
+        // ──────────────────────────────────────────────────
+        // Init: check if configured
+        // ──────────────────────────────────────────────────
+        fetch('/config')
+            .then(r => r.json())
+            .then(data => {
+                if (data.configured) {
+                    showMain();
+                } else {
+                    showSetup();
+                }
+            })
+            .catch(() => showSetup());
+
+        // ──────────────────────────────────────────────────
+        // Main screen: form loading
+        // ──────────────────────────────────────────────────
+        function loadForms() {
+            fetch('/forms')
+                .then(r => r.json())
+                .then(forms => {
+                    formSelect.innerHTML = '<option value="">Selectionnez un formulaire</option>';
+                    forms.forEach(f => {
+                        const opt = document.createElement('option');
+                        opt.value = f.id;
+                        opt.textContent = f.label + (f.has_template ? '' : ' (auto)');
+                        formSelect.appendChild(opt);
+                    });
+                })
+                .catch(() => {
+                    formSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+                });
+        }
+
+        // ──────────────────────────────────────────────────
+        // File handling (files + folder drag & drop)
+        // ──────────────────────────────────────────────────
+        function isAllowed(name) {
+            return ALLOWED_EXTENSIONS.some(ext => name.toLowerCase().endsWith(ext));
+        }
+
+        // Recursively read a dropped directory entry
+        function readEntry(entry) {
+            return new Promise((resolve) => {
+                if (entry.isFile) {
+                    entry.file(f => resolve(isAllowed(f.name) ? [f] : []));
+                } else if (entry.isDirectory) {
+                    const reader = entry.createReader();
+                    const allFiles = [];
+                    const readBatch = () => {
+                        reader.readEntries(entries => {
+                            if (entries.length === 0) {
+                                resolve(allFiles);
+                            } else {
+                                Promise.all(entries.map(readEntry)).then(results => {
+                                    results.forEach(r => allFiles.push(...r));
+                                    readBatch();
+                                });
+                            }
+                        });
+                    };
+                    readBatch();
+                } else {
+                    resolve([]);
+                }
+            });
+        }
+
+        // Browse buttons (prevent click from propagating to dropZone)
+        browseFile.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+        browseFolder.addEventListener('click', (e) => { e.stopPropagation(); folderInput.click(); });
+
+        // Clicking the drop zone itself opens the file picker
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        // Drop: handle both files and folders
+        dropZone.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+
+            const items = e.dataTransfer.items;
+            if (items && items.length > 0 && items[0].webkitGetAsEntry) {
+                // Use Entry API to support folders
+                const entries = Array.from(items)
+                    .map(item => item.webkitGetAsEntry())
+                    .filter(Boolean);
+                const results = await Promise.all(entries.map(readEntry));
+                const files = results.flat();
+                addFiles(files);
+            } else {
+                // Fallback: plain file list
+                const files = Array.from(e.dataTransfer.files).filter(f => isAllowed(f.name));
+                addFiles(files);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            addFiles(Array.from(fileInput.files));
+            fileInput.value = '';
+        });
+
+        folderInput.addEventListener('change', () => {
+            const files = Array.from(folderInput.files).filter(f => isAllowed(f.name));
+            addFiles(files);
+            folderInput.value = '';
+        });
+
+        function addFiles(files) {
+            files.forEach(f => {
+                if (!selectedFiles.find(sf => sf.name === f.name && sf.size === f.size)) {
+                    selectedFiles.push(f);
+                }
+            });
+            updateFileList();
+            updateSubmitBtn();
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            updateSubmitBtn();
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = selectedFiles.map((f, i) =>
+                `<div class="file-item">
+                    <span>${f.name}</span>
+                    <button type="button" onclick="removeFile(${i})">x</button>
+                </div>`
+            ).join('');
+        }
+
+        function updateSubmitBtn() {
+            submitBtn.disabled = !formSelect.value || selectedFiles.length === 0;
+        }
+
+        formSelect.addEventListener('change', updateSubmitBtn);
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formId = formSelect.value;
+            if (!formId || selectedFiles.length === 0) return;
+
+            submitBtn.disabled = true;
+            status.className = 'status loading';
+            status.innerHTML = '<span class="spinner"></span> Traitement en cours...';
+
+            const formData = new FormData();
+            selectedFiles.forEach(f => formData.append('reports', f));
+
+            try {
+                const response = await fetch(`/fill/${formId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('content-disposition')?.split('filename=')[1] || 'filled.pdf';
+                    a.click();
+                    URL.revokeObjectURL(url);
+
+                    status.className = 'status success';
+                    status.textContent = 'Formulaire rempli avec succes !';
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erreur de traitement');
+                }
+            } catch (err) {
+                status.className = 'status error';
+                status.textContent = err.message;
+            } finally {
+                submitBtn.disabled = false;
+                updateSubmitBtn();
+            }
+        });
+    </script>
+</body>
+</html>

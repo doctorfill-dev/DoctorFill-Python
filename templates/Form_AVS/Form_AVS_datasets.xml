@@ -1,0 +1,233 @@
+<xfa:datasets xmlns:xfa="http://www.xfa.org/schema/xfa-data/1.0/">
+  <xfa:data>
+    <mutter_dok>
+      <Seite1>
+        <treatmentS1Struct>
+          <treatmentCanton>
+            <value/>
+          </treatmentCanton>
+          <input/>
+          <treatmentCanton>AI</treatmentCanton>
+        </treatmentS1Struct>
+        <recipientInfoBlock>
+          IV-Stelle Appenzell I.Rh.&#xD;Poststrasse 9&#xD;Postfach 62&#xD;9050 Appenzell&#xD;&#xD;Telefon 071 788 18 30&#xD;Telefax 071 788 18 40&#xD;&#xD;Öffnungszeiten:&#xD;Montag-Freitag (oder nach tel. Vereinbarung)&#xD;08.00 h - 11.45 h&#xD;14.00 h - 17.00 h
+        </recipientInfoBlock>
+        <recipientBlockAddressFooter/>
+        <insuranceS1Address>
+          <companyName>IV-Stelle Appenzell I.Rh.</companyName>
+          <departmentName>Postfach 62</departmentName>
+          <street>Poststrasse 9</street>
+          <zip>9050</zip>
+          <city>Appenzell</city>
+          <ean>7601003002621</ean>
+          <input>exaddress#@#7601003002621#@##@##@##@##@#company#@#IV-Stelle Appenzell I.Rh.#@##@##@#Postfach 62#@#Poststrasse 9#@#9050#@#Appenzell#@##@##@##@##@##@##@##@##@##@##@#</input>
+        </insuranceS1Address>
+      </Seite1>
+
+
+      <Seite2>
+        <untertitel_2checkbox xfa:dataNode="dataGroup"/>
+        <patientS1Address>
+          <firstName>2.2 [string]</firstName>
+          <lastName>2.1 [string]</lastName>
+          <birthDate>2.7 [date]</birthDate>
+          <ssn>2.8 [AVS]</ssn>
+          <input/>
+          <street>2.5 [string]</street>
+          <city>2.4 [string]</city>
+          <zip>2.3 [NP]</zip>
+          <sex>
+            <value/>
+          </sex>
+          <phone>2.9 [tel]</phone>
+          <sex>F</sex>
+        </patientS1Address>
+        <contactPhoneByPhysician>2.11 [tel]</contactPhoneByPhysician>
+        <header xfa:dataNode="dataGroup"/>
+        <statusOFProceedings>2.10 [string]</statusOFProceedings>
+        <contactTimeByPhysician>2.12 [string]</contactTimeByPhysician>
+        <contactPhoneByIV>2.13 [tel]</contactPhoneByIV>
+        <contactTimeByIV>2.14 [string]</contactTimeByIV>
+      </Seite2>
+
+
+      <Seite3>
+        <rotertitel_untertitel_einfachfeld>
+          <titel_untertitel xfa:dataNode="dataGroup"/>
+        </rotertitel_untertitel_einfachfeld>
+
+        <tab1>
+          <treatmentFrequency>3.6 [string]</treatmentFrequency>
+        </tab1>
+
+        <rotertitel_untertitel_einfachfeld_2erBlock>
+          <Befund xfa:dataNode="dataGroup"/>
+          <untertitel_2erblock>
+            <fromDate>3.1 [date]</fromDate>
+            <toDate>3.2 [date]</toDate>
+            <lastControlDate>3.3 [date]</lastControlDate>
+          </untertitel_2erblock>
+        </rotertitel_untertitel_einfachfeld_2erBlock>
+
+        <untertitel-1zeilen_einfachfeld1>
+          <Titel_Untertitel xfa:dataNode="dataGroup"/>
+          <tab1>
+            <controlsBeforeBy>3.4 [string]</controlsBeforeBy>
+          </tab1>
+        </untertitel-1zeilen_einfachfeld1>
+
+        <untertitel-1zeilen_einfachfeld2>
+          <Titel_Untertitel xfa:dataNode="dataGroup"/>
+          <tab1>
+            <controlsAfterBy>3.5 [string]</controlsAfterBy>
+          </tab1>
+        </untertitel-1zeilen_einfachfeld2>
+
+        <mehrfachfeld>
+          <otherPhysicians>3.29 [string]</otherPhysicians>
+        </mehrfachfeld>
+
+        <header xfa:dataNode="dataGroup"/>
+        <untertitel_4erblock xfa:dataNode="dataGroup"/>
+
+        <AUF01>
+          <percent>3.70000000</percent>
+          <fromDate>3.8 [date]</fromDate>
+          <toDate>3.9 [date]</toDate>
+        </AUF01>
+
+        <AUF02>
+          <percent>3.10100000</percent>
+          <fromDate>3.11 [date]</fromDate>
+          <toDate>3.12 [date]</toDate>
+        </AUF02>
+
+        <AUF03>
+          <percent>3.13000000</percent>
+          <fromDate>3.14 [date]</fromDate>
+          <toDate>3.15 [date]</toDate>
+        </AUF03>
+
+        <AUF04>
+          <percent>3.16000000</percent>
+          <fromDate>3.17 [date]</fromDate>
+          <toDate>3.18 [date]</toDate>
+        </AUF04>
+
+        <AUF05>
+          <percent>3.19000000</percent>
+          <fromDate>3.20 [date]</fromDate>
+          <toDate>3.21 [date]</toDate>
+        </AUF05>
+
+        <AUF06>
+          <percent>3.22000000</percent>
+          <fromDate>3.23 [date]</fromDate>
+          <toDate>3.24 [date]</toDate>
+        </AUF06>
+
+        <AUF07>
+          <percent>3.25000000</percent>
+          <fromDate>3.26 [date]</fromDate>
+          <toDate>3.27 [date]</toDate>
+        </AUF07>
+
+        <jobDescription>3.28 [string]</jobDescription>
+
+        <anamnesis>4.1 [string]</anamnesis>
+
+      </Seite3>
+
+
+      <Seite4>
+        <untertitel-1zeilen_mehrfachfeld0>
+          <Titel_Untertitel xfa:dataNode="dataGroup"/>
+          <tab1>
+            <symptoms>4.2 [string]</symptoms>
+          </tab1>
+        </untertitel-1zeilen_mehrfachfeld0>
+
+
+        <tab1>
+          <diagnosisAffectingITW>4.5 [string]</diagnosisAffectingITW>
+        </tab1>
+
+        <rotertitel_untertitel_einfachfeld1>
+          <titel_untertitel xfa:dataNode="dataGroup"/>
+          <mehrfachfeld>
+            <findings>4.4 [string]</findings>
+          </mehrfachfeld>
+        </rotertitel_untertitel_einfachfeld1>
+        <tab1>
+          <medication>4.3 [string]</medication>
+        </tab1>
+        <Titel_Untertitel xfa:dataNode="dataGroup"/>
+        <header xfa:dataNode="dataGroup"/>
+      </Seite4>
+
+
+      <Seite5>
+        <rotertitel_untertitel_einfachfeld>
+          <prognosisForITW>4.7 [string]</prognosisForITW>
+        </rotertitel_untertitel_einfachfeld>
+        <rotertitel_untertitel_einfachfeld4>
+          <titel_untertitel xfa:dataNode="dataGroup"/>
+        </rotertitel_untertitel_einfachfeld4>
+        <header xfa:dataNode="dataGroup"/>
+        <diagnosisNotAffectingITW>4.6 [string]</diagnosisNotAffectingITW>
+        <treatmentPlan>4.8 [string]</treatmentPlan>
+      </Seite5>
+
+
+      <Seite6>
+        <informationForActivity>5.2 [string with checkbox enable (aucune information)]</informationForActivity>
+        <header xfa:dataNode="dataGroup"/>
+        <workingActivity>5.1 [string with checkbox enable (pas en mesure de répondre)]</workingActivity>
+        <q31Unknown>1</q31Unknown>
+        <q32None>1</q32None>
+        <requirementsForActivity>5.3 [string with checkbox enable (pas en mesure de répondre)]</requirementsForActivity>
+        <q33None>1</q33None>
+        <q34None>1</q34None>
+        <functionalRestrictions>5.4 [string with checkbox enable (pas en mesure de répondre)]</functionalRestrictions>
+        <q35Unknown>1</q35Unknown>
+        <functionalRestrictions>5.5 [string with checkbox enable (pas en mesure de répondre)]</functionalRestrictions>
+        <q36Unknown>1</q36Unknown>
+        <doubtsForDrivingAbility>5.6 [string with checkbox enable (pas en mesure de répondre)]</doubtsForDrivingAbility>
+      </Seite6>
+
+
+      <Seite7>
+        <header xfa:dataNode="dataGroup"/>
+        <attachments>7.5 [string]</attachments>
+
+        <providerS1Address>
+          <condensedName>7.2 [string]</condensedName>
+          <condensedAddress>7.3 [string]</condensedAddress>
+          <ean>7601003002485</ean>
+          <input/>
+        </providerS1Address>
+
+        <formS1Struct>
+          <modificationDate>7.4 [date]</modificationDate>
+          <creationDate/>
+          <serialNum/>
+          <language>fr</language>
+          <oid>medforms.40.10.5060</oid>
+          <guid/>
+          <version>101</version>
+          <instructions>insuranceS1Address=(hidden) consumerS1Address=(hidden insuranceClone) producerS1Address=(hidden providerClone)</instructions>
+        </formS1Struct>
+
+        <informationForActivity>7.1 [string]</informationForActivity>
+        <q41Unknown>1</q41Unknown>
+        <suggestedWorkingHoursCurrent>6.1 [string with checkbox enable (pas en mesure de répondre)]</suggestedWorkingHoursCurrent>
+        <suggestedWorkingHoursOptimized>6.2 [string]</suggestedWorkingHoursOptimized>
+        <prognosisForIntegration>6.3 [string]</prognosisForIntegration>
+        <impedimentsForIntegration>6.4 [string]</impedimentsForIntegration>
+        <q45Unknown>1</q45Unknown>
+        <restrictionsInHousehold>6.5 [string with checkbox enable (pas en mesure de répondre)]</restrictionsInHousehold>
+
+      </Seite7>
+    </mutter_dok>
+  </xfa:data>
+</xfa:datasets>

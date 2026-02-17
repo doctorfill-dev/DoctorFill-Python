@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1.1",
+    "question": "Numéro de sinistre"
+  },
+  {
+    "id": "1.2",
+    "question": "Nom du patient"
+  },
+  {
+    "id": "1.3",
+    "question": "Prénom du patient"
+  },
+  {
+    "id": "1.4",
+    "question": "Rue du patient"
+  },
+  {
+    "id": "1.5",
+    "question": "NPA du patient"
+  },
+  {
+    "id": "1.6",
+    "question": "Localité du patient"
+  },
+  {
+    "id": "1.7",
+    "question": "Téléphone du patient"
+  },
+  {
+    "id": "1.8",
+    "question": "Date de naissance du patient (jj.mm.aaaa)"
+  },
+  {
+    "id": "1.9",
+    "question": "E-mail du patient"
+  },
+  {
+    "id": "1.10",
+    "question": "Temps de travail (h/j)"
+  },
+  {
+    "id": "1.11",
+    "question": "Date du premier traitement (jj.mm.aaaa)"
+  },
+  {
+    "id": "2.1",
+    "question": "Diagnostic(s) (max ~1200 caractères)"
+  },
+  {
+    "id": "3.1",
+    "question": "Début de l’incapacité (jj.mm.aaaa)"
+  },
+  {
+    "id": "3.2",
+    "question": "Degré d’incapacité (%)"
+  },
+  {
+    "id": "4.1",
+    "question": "Remarque / reprise de travail prévue"
+  },
+  {
+    "id": "4.1",
+    "question": "Fin de l’incapacité (jj.mm.aaaa), si connue"
+  },
+  {
+    "id": "4.1",
+    "question": "Commentaires (suite si besoin)"
+  },
+  {
+    "id": "5.1",
+    "question": "Coordonnées du médecin (bloc adresse)"
+  },
+  {
+    "id": "5.2",
+    "question": "Téléphone du médecin"
+  },
+  {
+    "id": "5.3",
+    "question": "Fax du médecin"
+  },
+  {
+    "id": "5.4",
+    "question": "GLN du médecin"
+  },
+  {
+    "id": "5.5",
+    "question": "RCC (ZSR) du médecin"
+  },
+  {
+    "id": "5.6",
+    "question": "E-mail du médecin"
+  },
+  {
+    "id": "5.7",
+    "question": "Date du jour"
+  }
+]
