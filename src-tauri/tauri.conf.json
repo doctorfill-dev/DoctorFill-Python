@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/nicegui/tauri-v2/main/tauri.conf.schema.json",
+  "productName": "DoctorFill",
+  "version": "0.1.0",
+  "identifier": "dev.doctorfill.app",
+  "build": {
+    "devUrl": "http://localhost:8000",
+    "frontendDist": "../src/web/static"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "title": "DoctorFill",
+        "width": 700,
+        "height": 850,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "externalBin": [
+      "binaries/doctorfill-server"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    }
+  },
+  "plugins": {
+    "shell": {
+      "open": true,
+      "scope": [
+        {
+          "name": "doctorfill-server",
+          "cmd": "binaries/doctorfill-server",
+          "args": true
+        }
+      ]
+    }
+  }
+}

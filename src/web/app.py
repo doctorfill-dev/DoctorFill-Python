@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import List
 
 from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
 
 from ..config.settings import (
     API_HOST,
@@ -32,6 +33,9 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__, static_folder="static", static_url_path="")
+
+# Enable CORS for Tauri webview (tauri://localhost) and local dev
+CORS(app, origins=["tauri://localhost", "http://localhost:*", "https://tauri.localhost"])
 
 # Configure upload limits
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES

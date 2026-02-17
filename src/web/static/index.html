@@ -361,6 +361,15 @@
 
     <script>
         // ──────────────────────────────────────────────────
+        // API base URL
+        // When served by Tauri (file://), point to the Python sidecar
+        // When served by Flask, use relative URLs
+        // ──────────────────────────────────────────────────
+        const API_BASE = (window.location.protocol === 'file:' || window.location.port !== '8000')
+            ? 'http://localhost:8000'
+            : '';
+
+        // ──────────────────────────────────────────────────
         // Elements
         // ──────────────────────────────────────────────────
         const setupScreen = document.getElementById('setupScreen');
@@ -400,7 +409,7 @@
             setupScreen.classList.remove('hidden');
             mainScreen.classList.add('hidden');
             // Load existing config into form
-            fetch('/config')
+            fetch(API_BASE + '/config')
                 .then(r => r.json())
                 .then(data => {
                     const cfg = data.config;
@@ -464,7 +473,7 @@
 
                 // Test connection
                 setupStatus.textContent = 'Test de connexion...';
-                const testRes = await fetch('/config/test', { method: 'POST' });
+                const testRes = await fetch(API_BASE + '/config/test', { method: 'POST' });
                 const testData = await testRes.json();
 
                 if (testData.ok) {
@@ -487,7 +496,7 @@
         // ──────────────────────────────────────────────────
         // Init: check if configured
         // ──────────────────────────────────────────────────
-        fetch('/config')
+        fetch(API_BASE + '/config')
             .then(r => r.json())
             .then(data => {
                 if (data.configured) {
@@ -502,7 +511,7 @@
         // Main screen: form loading
         // ──────────────────────────────────────────────────
         function loadForms() {
-            fetch('/forms')
+            fetch(API_BASE + '/forms')
                 .then(r => r.json())
                 .then(forms => {
                     formSelect.innerHTML = '<option value="">Selectionnez un formulaire</option>';
@@ -646,7 +655,7 @@
             selectedFiles.forEach(f => formData.append('reports', f));
 
             try {
-                const response = await fetch(`/fill/${formId}`, {
+                const response = await fetch(`${API_BASE}/fill/${formId}`, {
                     method: 'POST',
                     body: formData
                 });

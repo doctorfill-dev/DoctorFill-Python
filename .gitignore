@@ -4,9 +4,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -22,6 +20,7 @@ wheels/
 
 # Virtual environments
 .venv/
+.env312/
 venv/
 ENV/
 env/
@@ -33,11 +32,11 @@ env/
 *.swo
 *~
 
-# Environment
+# Environment & secrets
 .env
 .env.local
 
-# Logs and data
+# Logs and data (user-specific)
 logs/
 data/
 *.log
@@ -47,17 +46,23 @@ data/
 Thumbs.db
 
 # Build artifacts
-*.exe
-*.msi
-*.app
 dist/
 build/
+*.spec.bak
+
+# PyInstaller
+*.manifest
+*.spec.tmp
+
+# Tauri
+src-tauri/target/
+src-tauri/binaries/
+
+# Node
+node_modules/
+package-lock.json
 
 # Test
 .pytest_cache/
 .coverage
 htmlcov/
-
-# Old projects (to be removed)
-DF-POC-02/
-DoctorFill-app-web/

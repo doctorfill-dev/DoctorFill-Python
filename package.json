@@ -1,0 +1,22 @@
+{
+  "name": "doctorfill",
+  "version": "0.1.0",
+  "description": "Remplissage intelligent de formulaires PDF medicaux via RAG + LLM",
+  "private": true,
+  "scripts": {
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "python:dev": "python3 -m src.web.app",
+    "python:bundle": "pyinstaller --noconfirm pyinstaller.spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/doctorfill-dev/DoctorFill-Python.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.0"
+  }
+}
