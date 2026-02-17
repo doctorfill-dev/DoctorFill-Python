@@ -494,18 +494,26 @@
         });
 
         // ──────────────────────────────────────────────────
-        // Init: check if configured
+        // Init: wait for backend then check config
         // ──────────────────────────────────────────────────
-        fetch(API_BASE + '/config')
-            .then(r => r.json())
-            .then(data => {
-                if (data.configured) {
-                    showMain();
-                } else {
-                    showSetup();
-                }
-            })
-            .catch(() => showSetup());
+        async function waitForBackend(retries = 15, delay = 500) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const r = await fetch(API_BASE + '/config');
+                    if (r.ok) return await r.json();
+                } catch (_) { /* server not ready yet */ }
+                await new Promise(res => setTimeout(res, delay));
+            }
+            return null;
+        }
+
+        waitForBackend().then(data => {
+            if (data && data.configured) {
+                showMain();
+            } else {
+                showSetup();
+            }
+        });
 
         // ──────────────────────────────────────────────────
         // Main screen: form loading

@@ -16,7 +16,15 @@ After build, copy:
 import platform
 import subprocess
 
+from PyInstaller.utils.hooks import collect_all, collect_submodules
+
 block_cipher = None
+
+# ChromaDB uses dynamic imports heavily — collect everything
+chromadb_datas, chromadb_binaries, chromadb_hiddenimports = collect_all("chromadb")
+
+# Also collect all onnxruntime submodules (used by chromadb embeddings)
+onnxruntime_hiddenimports = collect_submodules("onnxruntime")
 
 # Determine the Rust target triple (Tauri sidecar naming convention)
 def get_target_triple():
@@ -43,14 +51,15 @@ TARGET_TRIPLE = get_target_triple()
 a = Analysis(
     ["server.py"],
     pathex=["."],
-    binaries=[],
+    binaries=chromadb_binaries,
     datas=[
         ("src/web/static", "src/web/static"),
         ("templates", "templates"),
         ("forms", "forms"),
         (".env.example", "."),
-    ],
+    ] + chromadb_datas,
     hiddenimports=[
+        # DoctorFill modules
         "src",
         "src.config",
         "src.config.settings",
@@ -80,9 +89,10 @@ a = Analysis(
         "src.templates.loader",
         "src.web",
         "src.web.app",
+        # Third-party
         "flask",
+        "flask_cors",
         "dotenv",
-        "chromadb",
         "tiktoken",
         "tiktoken_ext",
         "tiktoken_ext.openai_public",
@@ -95,7 +105,7 @@ a = Analysis(
         "json_repair",
         "tqdm",
         "requests",
-    ],
+    ] + chromadb_hiddenimports + onnxruntime_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
