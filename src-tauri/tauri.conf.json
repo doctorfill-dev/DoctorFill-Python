@@ -9,15 +9,7 @@
   },
   "app": {
     "withGlobalTauri": false,
-    "windows": [
-      {
-        "title": "DoctorFill",
-        "width": 700,
-        "height": 850,
-        "resizable": true,
-        "center": true
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }

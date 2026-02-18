@@ -362,12 +362,11 @@
     <script>
         // ──────────────────────────────────────────────────
         // API base URL
-        // When served by Tauri (file://), point to the Python sidecar
-        // When served by Flask, use relative URLs
+        // Both Tauri (production) and Flask (dev) point the webview at
+        // http://localhost:8000, so all fetches are same-origin.
+        // No cross-origin / mixed-content issues.
         // ──────────────────────────────────────────────────
-        const API_BASE = (window.location.protocol === 'file:' || window.location.port !== '8000')
-            ? 'http://localhost:8000'
-            : '';
+        const API_BASE = '';
 
         // ──────────────────────────────────────────────────
         // Elements
