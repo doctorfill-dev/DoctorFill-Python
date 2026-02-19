@@ -42,6 +42,8 @@ npm install
 source .env312/bin/activate
 python -m src.web.app
 # Ouvrir http://localhost:8000
+
+npm run tauri:dev
 ```
 
 ## Build local (application desktop)

@@ -159,11 +159,12 @@ jobs:
           MAC_URL="${BASE_URL}/${MAC_FILE}"
 
           # ── Build latest.json ─────────────────────────────────────────
+          PUB_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           cat > doctorfill-latest.json <<EOF
 {
   "version": "${VERSION}",
   "notes": "See https://github.com/${REPO}/releases/tag/${TAG} for details.",
-  "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "pub_date": "${PUB_DATE}",
   "platforms": {
     "windows-x86_64": {
       "url": "${WIN_URL}",
