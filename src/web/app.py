@@ -51,44 +51,42 @@ template_manager = TemplateManager()
 
 def _read_app_version() -> str:
     """
-    Read the app version from tauri.conf.json.
+    Read the app version.
 
     Search order:
-    1. DOCTORFILL_VERSION env var (injected by CI at build time)
-    2. tauri.conf.json next to the executable (PyInstaller bundle)
-    3. tauri.conf.json at project root (development)
+    1. src._version module (baked in at CI build time via PyInstaller)
+    2. tauri.conf.json at project root (development fallback)
     """
-    # 1. Env var set by CI / build script
-    env_version = os.environ.get("DOCTORFILL_VERSION")
-    if env_version:
-        return env_version
+    # 1. Version baked into the bundle by CI
+    try:
+        from src._version import __version__ as baked_version
+        if baked_version and baked_version != "dev":
+            return baked_version
+    except ImportError:
+        pass
 
-    # 2. Candidate paths for tauri.conf.json
-    candidates = []
+    # Also try the top-level _version module (PyInstaller flattens imports)
+    try:
+        import _version as _v  # type: ignore[import]
+        if _v.__version__ and _v.__version__ != "dev":
+            return _v.__version__
+    except ImportError:
+        pass
 
-    # PyInstaller bundle: exe is next to src-tauri/ at install time,
-    # but during dev the conf lives at project_root/src-tauri/tauri.conf.json
-    exe_dir = Path(sys.executable).parent
-    candidates.append(exe_dir / "tauri.conf.json")
-    candidates.append(exe_dir.parent / "src-tauri" / "tauri.conf.json")
-
-    # Development: walk up from this file to find src-tauri/
+    # 2. Development: walk up from this file to find src-tauri/tauri.conf.json
     here = Path(__file__).resolve()
     for parent in here.parents:
         candidate = parent / "src-tauri" / "tauri.conf.json"
-        candidates.append(candidate)
-        if parent.name == "DoctorFill-Python":
-            break
-
-    for path in candidates:
-        if path.exists():
+        if candidate.exists():
             try:
-                data = json.loads(path.read_text(encoding="utf-8"))
+                data = json.loads(candidate.read_text(encoding="utf-8"))
                 version = data.get("version")
                 if version:
                     return str(version)
             except Exception:
                 pass
+        if parent.name == "DoctorFill-Python":
+            break
 
     return "unknown"
 

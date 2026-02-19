@@ -40,7 +40,8 @@ jobs:
       - name: Build Python sidecar
         shell: bash
         run: |
-          export DOCTORFILL_VERSION="${GITHUB_REF_NAME#v}"
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "__version__ = \"${VERSION}\"" > src/_version.py
           pyinstaller --noconfirm pyinstaller.spec
 
       - name: Copy sidecar binary (Unix)
