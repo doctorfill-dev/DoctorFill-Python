@@ -98,7 +98,7 @@ RAG_USE_RERANKING = os.getenv("RAG_USE_RERANKING", "true").lower() == "true"
 RAG_MAX_CONTEXT_WINDOW = int(os.getenv("RAG_MAX_CONTEXT_WINDOW", "8192"))
 RAG_SAFETY_MARGIN = int(os.getenv("RAG_SAFETY_MARGIN", "1500"))
 RAG_MAX_INPUT_TOKENS = RAG_MAX_CONTEXT_WINDOW - RAG_SAFETY_MARGIN
-RAG_BATCH_SIZE = int(os.getenv("RAG_BATCH_SIZE", "5"))
+RAG_BATCH_SIZE = int(os.getenv("RAG_BATCH_SIZE", "8"))
 
 # ──────────────────────────────────────────────────────────────
 # API Configuration

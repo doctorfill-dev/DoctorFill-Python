@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -198,6 +199,8 @@ FORMAT DE RÉPONSE ATTENDU (JSON uniquement) :
         """
         Process questions against indexed documents.
 
+        Uses parallel LLM calls to speed up processing.
+
         Args:
             questions: List of {"id": "...", "question": "..."} dicts
             progress: Show progress bar
@@ -208,16 +211,56 @@ FORMAT DE RÉPONSE ATTENDU (JSON uniquement) :
         if not self._chunks:
             raise RuntimeError("No documents indexed. Call index_documents() first.")
 
-        responses = []
+        # 1. Pre-compute all question embeddings in one batch call
+        #    (avoids N individual API calls inside _process_batch)
+        logger.info("Pre-computing %d question embeddings...", len(questions))
+        q_texts = [q['question'].replace("\n", " ") for q in questions]
+        try:
+            all_q_embeddings = self._generate_embeddings(q_texts, progress=False)
+            q_embedding_map = {q['id']: emb for q, emb in zip(questions, all_q_embeddings)}
+        except Exception as e:
+            logger.warning("Bulk embedding failed, will embed per-batch: %s", e)
+            q_embedding_map = {}
+
         batches = list(self._chunk_list(questions, self.config.batch_size))
+        num_workers = min(3, len(batches))
 
-        iterator = tqdm(batches, unit="batch", desc="Processing") if progress else batches
+        if num_workers <= 1:
+            # Sequential fallback for small workloads
+            responses = []
+            iterator = tqdm(batches, unit="batch", desc="Processing") if progress else batches
+            for batch in iterator:
+                batch_responses = self._process_batch(batch, q_embedding_map)
+                responses.extend(batch_responses)
+            return responses
 
-        for batch in iterator:
-            batch_responses = self._process_batch(batch)
-            responses.extend(batch_responses)
+        # 2. Parallel processing with ThreadPoolExecutor
+        logger.info("Processing %d batches with %d parallel workers", len(batches), num_workers)
+        all_responses: List[Tuple[int, List[RAGResponse]]] = []
+        pbar = tqdm(total=len(batches), unit="batch", desc="Processing") if progress else None
 
-        return responses
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            futures = {
+                executor.submit(self._process_batch, batch, q_embedding_map): idx
+                for idx, batch in enumerate(batches)
+            }
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    result = future.result()
+                except Exception as e:
+                    logger.error("Batch %d failed: %s", idx, e)
+                    result = [RAGResponse(id=q['id'], error=str(e)) for q in batches[idx]]
+                all_responses.append((idx, result))
+                if pbar:
+                    pbar.update(1)
+
+        if pbar:
+            pbar.close()
+
+        # Reassemble in original order
+        all_responses.sort(key=lambda x: x[0])
+        return [resp for _, batch_resp in all_responses for resp in batch_resp]
 
     def _generate_embeddings(
         self,
@@ -294,14 +337,22 @@ FORMAT DE RÉPONSE ATTENDU (JSON uniquement) :
             return 0.0
         return dot / (norm_a * norm_b)
 
-    def _process_batch(self, batch: List[Dict[str, str]]) -> List[RAGResponse]:
+    def _process_batch(
+        self,
+        batch: List[Dict[str, str]],
+        q_embedding_map: Optional[Dict[str, List[float]]] = None
+    ) -> List[RAGResponse]:
         """Process a batch of questions."""
         # Multi-query retrieval
         candidate_docs = set()
 
         for q in batch:
             try:
-                q_embedding = self.provider.embed_texts([q['question'].replace("\n", " ")])[0]
+                # Use pre-computed embedding if available, else compute on the fly
+                if q_embedding_map and q['id'] in q_embedding_map:
+                    q_embedding = q_embedding_map[q['id']]
+                else:
+                    q_embedding = self.provider.embed_texts([q['question'].replace("\n", " ")])[0]
                 results = self._query_similar(q_embedding, self.config.retrieval_top_k)
                 candidate_docs.update(results)
             except Exception as e:
