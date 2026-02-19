@@ -373,9 +373,7 @@ pub fn run() {
                                     {
                                         Ok(_) => {
                                             println!("[tauri] Restarting for update...");
-                                            tauri_plugin_process::restart(
-                                                &update_handle.env(),
-                                            );
+                                            update_handle.restart();
                                         }
                                         Err(e) => eprintln!("[tauri] Update install failed: {}", e),
                                     }
