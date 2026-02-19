@@ -37,7 +37,7 @@ mod job {
         JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
     };
     use windows_sys::Win32::System::Threading::OpenProcess;
-    use windows_sys::Win32::System::Threading::PROCESS_ALL_ACCESS;
+    use windows_sys::Win32::System::Threading::{PROCESS_SET_QUOTA, PROCESS_TERMINATE};
 
     use std::sync::OnceLock;
 
@@ -103,7 +103,7 @@ mod job {
         };
 
         unsafe {
-            let proc = OpenProcess(PROCESS_ALL_ACCESS, 0, pid);
+            let proc = OpenProcess(PROCESS_SET_QUOTA | PROCESS_TERMINATE, 0, pid);
             if proc.is_null() {
                 eprintln!("[tauri] OpenProcess failed for PID {}", pid);
                 return;
@@ -123,35 +123,49 @@ mod job {
 
 // ── Sidecar state ─────────────────────────────────────────────────────────────
 
-/// Holds the sidecar process handle for explicit cleanup on graceful exit.
+/// Holds the sidecar process handle and its PID for explicit cleanup on graceful exit.
 /// The Job Object is the primary safety net on Windows; this is belt-and-suspenders.
-struct Sidecar(Mutex<Option<tauri_plugin_shell::process::CommandChild>>);
+struct Sidecar {
+    child: Mutex<Option<tauri_plugin_shell::process::CommandChild>>,
+    /// PID of the spawned sidecar process, used for scoped tree-kill on Windows.
+    #[cfg(windows)]
+    pid: u32,
+}
 
 impl Sidecar {
+    fn new(child: tauri_plugin_shell::process::CommandChild) -> Self {
+        Self {
+            #[cfg(windows)]
+            pid: child.pid(),
+            child: Mutex::new(Some(child)),
+        }
+    }
+
     /// Explicit kill: send kill signal + platform-specific tree kill.
     fn kill(&self) {
-        if let Ok(mut guard) = self.0.lock() {
+        if let Ok(mut guard) = self.child.lock() {
             if let Some(child) = guard.take() {
                 println!("[tauri] Sending kill to sidecar...");
                 let _ = child.kill();
             }
         }
-        // Windows: kill the entire process tree by image name.
+        // Windows: kill the process tree rooted at the sidecar's PID.
         // This handles the PyInstaller parent+child situation explicitly
         // and complements the Job Object for graceful exit paths.
+        // Using /PID instead of /IM to avoid killing unrelated instances.
         #[cfg(windows)]
-        Self::kill_process_tree_windows();
+        Self::kill_process_tree_windows(self.pid);
 
         // Unix: kill by port (lsof).
         #[cfg(unix)]
         Self::kill_port_unix();
     }
 
-    /// Windows: taskkill /F /IM <name> /T — kills ALL instances + their children.
+    /// Windows: taskkill /F /PID <pid> /T — kills the tree rooted at the given PID only.
     #[cfg(windows)]
-    fn kill_process_tree_windows() {
+    fn kill_process_tree_windows(pid: u32) {
         let _ = std::process::Command::new("taskkill")
-            .args(["/F", "/IM", "doctorfill-server.exe", "/T"])
+            .args(["/F", "/PID", &pid.to_string(), "/T"])
             .output();
     }
 
@@ -318,7 +332,7 @@ pub fn run() {
             #[cfg(not(dev))]
             {
                 let child = start_python_backend(app.handle());
-                app.manage(Sidecar(Mutex::new(Some(child))));
+                app.manage(Sidecar::new(child));
             }
 
             // ── Navigate to Flask once ready (async, non-blocking) ───
@@ -365,9 +379,9 @@ pub fn run() {
                     if let Some(state) = app_handle.try_state::<Sidecar>() {
                         state.kill();
                     } else {
-                        // Fallback if state was never registered (dev mode)
-                        #[cfg(windows)]
-                        Sidecar::kill_process_tree_windows();
+                        // Fallback if state was never registered (dev mode).
+                        // On Windows the Job Object handles cleanup automatically.
+                        // On Unix, fall back to port-based kill.
                         #[cfg(unix)]
                         Sidecar::kill_port_unix();
                     }
