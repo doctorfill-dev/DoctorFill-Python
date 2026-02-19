@@ -3,431 +3,671 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoctorFill - Remplissage intelligent de formulaires</title>
+    <title>DoctorFill</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --bg:            #f2f2f7;
+            --bg-card:       rgba(255, 255, 255, 0.85);
+            --bg-input:      rgba(118, 118, 128, 0.12);
+            --bg-hover:      rgba(118, 118, 128, 0.08);
+            --accent:        #007aff;
+            --accent-hover:  #0066d6;
+            --accent-light:  rgba(0, 122, 255, 0.12);
+            --destructive:   #ff3b30;
+            --success:       #34c759;
+            --warning:       #ff9500;
+            --text-primary:  #1c1c1e;
+            --text-secondary:#636366;
+            --text-tertiary: #aeaeb2;
+            --separator:     rgba(60, 60, 67, 0.12);
+            --shadow-sm:     0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md:     0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+            --shadow-lg:     0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+            --radius-sm:     8px;
+            --radius-md:     12px;
+            --radius-lg:     16px;
+            --radius-xl:     20px;
+            --font:          -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+            --font-display:  -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg:            #000000;
+                --bg-card:       rgba(28, 28, 30, 0.92);
+                --bg-input:      rgba(118, 118, 128, 0.18);
+                --bg-hover:      rgba(118, 118, 128, 0.12);
+                --accent:        #0a84ff;
+                --accent-hover:  #409cff;
+                --accent-light:  rgba(10, 132, 255, 0.15);
+                --text-primary:  #ffffff;
+                --text-secondary:#aeaeb2;
+                --text-tertiary: #636366;
+                --separator:     rgba(84, 84, 88, 0.6);
+                --shadow-sm:     0 1px 3px rgba(0,0,0,0.3);
+                --shadow-md:     0 4px 16px rgba(0,0,0,0.4);
+                --shadow-lg:     0 8px 32px rgba(0,0,0,0.5);
+            }
+        }
+
+        html, body {
+            height: 100%;
+            background: var(--bg);
+            font-family: var(--font);
+            color: var(--text-primary);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* ── Layout ── */
+        .app {
             min-height: 100vh;
-            padding: 2rem;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px 80px;
         }
 
         .card {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            color: #333;
-            font-size: 1.75rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        h2 {
-            color: #333;
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .subtitle {
-            color: #666;
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 0.9rem;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            color: #444;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        label small {
-            font-weight: 400;
-            color: #999;
-        }
-
-        select, input[type="text"], input[type="password"] {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            background: white;
-            transition: border-color 0.2s;
+            max-width: 480px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px) saturate(1.8);
+            -webkit-backdrop-filter: blur(20px) saturate(1.8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--separator);
+            overflow: hidden;
         }
 
-        select {
-            cursor: pointer;
+        .card-header {
+            padding: 28px 28px 0;
+            text-align: center;
         }
 
-        select:focus, input[type="text"]:focus, input[type="password"]:focus {
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(145deg, #007aff 0%, #5856d6 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
+            font-size: 30px;
+        }
+
+        .card-header h1 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.4px;
+            color: var(--text-primary);
+        }
+
+        .card-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .card-body {
+            padding: 24px 28px 28px;
+        }
+
+        /* ── Section groups (iOS grouped style) ── */
+        .form-section {
+            background: var(--bg-input);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .form-section-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+            margin-bottom: 6px;
+            margin-top: 20px;
+        }
+
+        .form-section-label:first-child {
+            margin-top: 0;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            min-height: 44px;
+            border-bottom: 1px solid var(--separator);
+            gap: 10px;
+        }
+
+        .form-row:last-child {
+            border-bottom: none;
+        }
+
+        .form-row label {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 400;
+            white-space: nowrap;
+            min-width: 100px;
+        }
+
+        .form-row input[type="text"],
+        .form-row input[type="password"] {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: var(--font);
+            font-size: 15px;
+            color: var(--text-primary);
             outline: none;
-            border-color: #667eea;
+            text-align: right;
+            padding: 12px 0;
         }
 
-        .file-upload {
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            padding: 2rem;
+        .form-row input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-row select {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-family: var(--font);
+            font-size: 15px;
+            color: var(--text-primary);
+            outline: none;
+            text-align: right;
+            cursor: pointer;
+            padding: 12px 0;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .form-row select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+        }
+
+        .select-wrapper {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .select-wrapper select {
+            flex: none;
+            width: 100%;
+        }
+
+        .select-chevron {
+            pointer-events: none;
+            color: var(--text-tertiary);
+            font-size: 11px;
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        /* ── File drop zone ── */
+        .drop-zone {
+            border: 1.5px dashed var(--separator);
+            border-radius: var(--radius-md);
+            padding: 28px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            background: var(--bg-input);
+            margin-bottom: 12px;
         }
 
-        .file-upload:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-light);
         }
 
-        .file-upload.dragover {
-            border-color: #667eea;
-            background: #f0f3ff;
+        .drop-zone-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+            opacity: 0.7;
         }
 
-        .file-upload input {
-            display: none;
+        .drop-zone-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 4px;
         }
 
-        .file-upload-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        .drop-zone-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
         }
 
-        .file-upload-text {
-            color: #666;
+        .drop-zone-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 12px;
         }
 
+        .link-btn {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 6px;
+            transition: background 0.15s;
+        }
+
+        .link-btn:hover {
+            background: var(--accent-light);
+        }
+
+        input[type="file"] { display: none; }
+
+        /* ── File list ── */
         .file-list {
-            margin-top: 1rem;
-            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
         }
 
         .file-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0.5rem;
-            background: #f5f5f5;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
+            gap: 10px;
+            padding: 9px 12px;
+            background: var(--bg-input);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
         }
 
-        .file-item button {
+        .file-item-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .file-item-name {
+            flex: 1;
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-item-remove {
             background: none;
             border: none;
-            color: #e74c3c;
             cursor: pointer;
-            font-size: 1.2rem;
+            color: var(--text-tertiary);
+            font-size: 16px;
+            line-height: 1;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: color 0.15s;
+            flex-shrink: 0;
         }
 
-        .btn {
+        .file-item-remove:hover {
+            color: var(--destructive);
+        }
+
+        /* ── Primary button ── */
+        .btn-primary {
             width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 14px;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: var(--radius-md);
+            font-family: var(--font);
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background 0.15s, opacity 0.15s, transform 0.1s;
+            letter-spacing: -0.1px;
         }
 
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
         }
 
-        .btn:disabled {
-            opacity: 0.6;
+        .btn-primary:active:not(:disabled) {
+            transform: scale(0.99);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.35;
             cursor: not-allowed;
         }
 
-        .btn-secondary {
-            background: #f5f5f5;
-            color: #444;
+        /* ── Text button (header nav) ── */
+        .btn-text {
+            background: none;
+            border: none;
+            font-family: var(--font);
+            font-size: 15px;
             font-weight: 500;
-            font-size: 0.9rem;
-            padding: 0.6rem 1rem;
-            width: auto;
+            color: var(--accent);
+            cursor: pointer;
+            padding: 4px 0;
         }
 
-        .btn-secondary:hover:not(:disabled) {
-            background: #eee;
-            box-shadow: none;
-            transform: none;
+        .btn-text:hover {
+            opacity: 0.75;
         }
 
-        .status {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            border-radius: 8px;
+        /* ── Status banner ── */
+        .status-banner {
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 14px;
             display: none;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 12px;
         }
 
-        .status.loading {
-            display: block;
-            background: #e3f2fd;
-            color: #1976d2;
+        .status-banner.visible { display: flex; }
+
+        .status-banner.loading {
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--accent);
         }
 
-        .status.success {
-            display: block;
-            background: #e8f5e9;
-            color: #2e7d32;
+        .status-banner.success {
+            background: rgba(52, 199, 89, 0.12);
+            color: #1a7f37;
         }
 
-        .status.error {
-            display: block;
-            background: #ffebee;
-            color: #c62828;
+        @media (prefers-color-scheme: dark) {
+            .status-banner.success { color: #30d158; }
         }
+
+        .status-banner.error {
+            background: rgba(255, 59, 48, 0.1);
+            color: var(--destructive);
+        }
+
+        /* ── Spinner ── */
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #1976d2;
-            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
             border-top-color: transparent;
-            animation: spin 1s linear infinite;
-            margin-right: 0.5rem;
-            vertical-align: middle;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            flex-shrink: 0;
+            margin-top: 1px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* ── Header row (main screen) ── */
+        .screen-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 28px 0;
         }
 
+        .screen-header h2 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* ── Setup info box ── */
+        .info-box {
+            background: var(--accent-light);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            font-size: 13px;
+            color: var(--accent);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+
+        /* ── Footer ── */
         footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             text-align: center;
-            color: rgba(255,255,255,0.8);
-            margin-top: 2rem;
-            font-size: 0.85rem;
+            padding: 14px;
+            font-size: 11px;
+            color: var(--text-tertiary);
+            letter-spacing: 0.1px;
         }
 
+        /* ── Utility ── */
         .hidden { display: none !important; }
 
-        /* Setup screen */
-        .setup-info {
-            background: #f0f3ff;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            color: #444;
-            line-height: 1.5;
-        }
-
-        .provider-fields { margin-top: 0.5rem; }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .config-link {
-            font-size: 0.85rem;
-            color: #667eea;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .config-link:hover { color: #764ba2; }
-
-        .browse-link {
-            color: #667eea;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        .browse-link:hover { text-decoration: underline; }
+        .mt-4 { margin-top: 16px; }
+        .mt-3 { margin-top: 12px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- ==================== SETUP SCREEN ==================== -->
+    <div class="app">
+
+        <!-- ══════════════ SETUP SCREEN ══════════════ -->
         <div class="card hidden" id="setupScreen">
-            <h1>DoctorFill</h1>
-            <h2>Configuration</h2>
-
-            <div class="setup-info">
-                Avant d'utiliser DoctorFill, configurez votre fournisseur d'IA.
-                Vous aurez besoin de vos identifiants API.
-            </div>
-
-            <form id="setupForm">
-                <div class="form-group">
-                    <label for="setupProvider">Fournisseur LLM</label>
-                    <select id="setupProvider">
-                        <option value="infomaniak">Infomaniak AI</option>
-                        <option value="local">LM Studio (local)</option>
-                    </select>
-                </div>
-
-                <div id="ifkFields" class="provider-fields">
-                    <div class="form-group">
-                        <label for="setupProductId">Product ID</label>
-                        <input type="text" id="setupProductId" placeholder="ex: 123456">
-                    </div>
-                    <div class="form-group">
-                        <label for="setupApiToken">API Token</label>
-                        <input type="password" id="setupApiToken" placeholder="Votre token API Infomaniak">
-                    </div>
-                </div>
-
-                <div id="localFields" class="provider-fields hidden">
-                    <div class="form-group">
-                        <label for="setupLmUrl">URL LM Studio</label>
-                        <input type="text" id="setupLmUrl" placeholder="http://localhost:1234/v1">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn" id="setupBtn">
-                    Sauvegarder et continuer
-                </button>
-
-                <div class="status" id="setupStatus"></div>
-            </form>
-        </div>
-
-        <!-- ==================== MAIN SCREEN ==================== -->
-        <div class="card hidden" id="mainScreen">
-            <div class="header-row">
+            <div class="card-header">
+                <div class="app-icon">⚕️</div>
                 <h1>DoctorFill</h1>
-                <span class="config-link" id="openSetup">Configuration</span>
+                <p>Configuration du fournisseur IA</p>
             </div>
-            <p class="subtitle">Remplissage intelligent de formulaires medicaux</p>
+            <div class="card-body">
 
-            <form id="fillForm">
-                <div class="form-group">
-                    <label for="formSelect">Formulaire</label>
-                    <select id="formSelect" required>
-                        <option value="">Chargement...</option>
-                    </select>
+                <div class="info-box">
+                    Configurez votre fournisseur d'IA pour commencer.
+                    Vos identifiants sont stockés localement.
                 </div>
 
-                <div class="form-group">
-                    <label>Rapports medicaux (PDF ou TXT)</label>
-                    <div class="file-upload" id="dropZone">
-                        <input type="file" id="fileInput" accept=".pdf,.txt" multiple>
-                        <input type="file" id="folderInput" webkitdirectory multiple style="display:none">
-                        <div class="file-upload-icon">+</div>
-                        <div class="file-upload-text">
-                            Glissez vos fichiers <strong>ou un dossier</strong> ici
-                            <br><span id="browseFile" class="browse-link">Parcourir fichiers</span> | <span id="browseFolder" class="browse-link">Parcourir dossier</span>
-                            <br><small style="color: #999;">Formats acceptes : PDF, TXT</small>
+                <form id="setupForm">
+                    <div class="form-section-label">Fournisseur</div>
+                    <div class="form-section">
+                        <div class="form-row">
+                            <label>LLM</label>
+                            <div class="select-wrapper">
+                                <select id="setupProvider">
+                                    <option value="infomaniak">Infomaniak AI</option>
+                                    <option value="local">LM Studio (local)</option>
+                                </select>
+                                <span class="select-chevron">▼</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="file-list" id="fileList"></div>
-                </div>
 
-                <button type="submit" class="btn" id="submitBtn" disabled>
-                    Remplir le formulaire
-                </button>
-            </form>
+                    <div id="ifkFields">
+                        <div class="form-section-label">Infomaniak</div>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <label>Product ID</label>
+                                <input type="text" id="setupProductId" placeholder="123456">
+                            </div>
+                            <div class="form-row">
+                                <label>API Token</label>
+                                <input type="password" id="setupApiToken" placeholder="Requis">
+                            </div>
+                        </div>
+                    </div>
 
-            <div class="status" id="status"></div>
+                    <div id="localFields" class="hidden">
+                        <div class="form-section-label">LM Studio</div>
+                        <div class="form-section">
+                            <div class="form-row">
+                                <label>URL</label>
+                                <input type="text" id="setupLmUrl" placeholder="http://localhost:1234/v1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn-primary" id="setupBtn">
+                            Continuer
+                        </button>
+                    </div>
+
+                    <div class="status-banner" id="setupStatus"></div>
+                </form>
+
+            </div>
         </div>
 
-        <footer>
-            DoctorFill - RAG + XFA PDF Form Filling &nbsp;·&nbsp; <span id="appVersion"></span>
-        </footer>
+        <!-- ══════════════ MAIN SCREEN ══════════════ -->
+        <div class="card hidden" id="mainScreen">
+            <div class="screen-header">
+                <h2>DoctorFill</h2>
+                <button class="btn-text" id="openSetup">Réglages</button>
+            </div>
+            <div class="card-body">
+
+                <form id="fillForm">
+                    <div class="form-section-label">Formulaire</div>
+                    <div class="form-section">
+                        <div class="form-row">
+                            <label>Type</label>
+                            <div class="select-wrapper">
+                                <select id="formSelect" required>
+                                    <option value="">Chargement…</option>
+                                </select>
+                                <span class="select-chevron">▼</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section-label mt-3">Rapports médicaux</div>
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="fileInput" accept=".pdf,.txt" multiple>
+                        <input type="file" id="folderInput" webkitdirectory multiple>
+                        <div class="drop-zone-icon">📄</div>
+                        <div class="drop-zone-title">Déposez vos fichiers ici</div>
+                        <div class="drop-zone-sub">PDF ou TXT acceptés</div>
+                        <div class="drop-zone-actions">
+                            <span class="link-btn" id="browseFile">Fichiers</span>
+                            <span class="link-btn" id="browseFolder">Dossier</span>
+                        </div>
+                    </div>
+
+                    <div class="file-list" id="fileList"></div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn" disabled>
+                        Remplir le formulaire
+                    </button>
+                </form>
+
+                <div class="status-banner" id="status"></div>
+
+            </div>
+        </div>
+
     </div>
 
+    <footer>
+        DoctorFill &nbsp;·&nbsp; <span id="appVersion"></span>
+    </footer>
+
     <script>
-        // ──────────────────────────────────────────────────
-        // API base URL
-        // Both Tauri (production) and Flask (dev) point the webview at
-        // http://localhost:8000, so all fetches are same-origin.
-        // No cross-origin / mixed-content issues.
-        // ──────────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // Config
+        // ─────────────────────────────────────────
         const API_BASE = '';
 
-        // ──────────────────────────────────────────────────
-        // Version display
-        // ──────────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // Version
+        // ─────────────────────────────────────────
         fetch(API_BASE + '/version')
             .then(r => r.json())
-            .then(data => {
+            .then(d => {
                 const el = document.getElementById('appVersion');
-                if (el && data.version) el.textContent = 'v' + data.version;
+                if (el && d.version) el.textContent = 'v' + d.version;
             })
             .catch(() => {});
 
-        // ──────────────────────────────────────────────────
+        // ─────────────────────────────────────────
         // Elements
-        // ──────────────────────────────────────────────────
-        const setupScreen = document.getElementById('setupScreen');
-        const mainScreen = document.getElementById('mainScreen');
-
-        // Setup elements
-        const setupForm = document.getElementById('setupForm');
+        // ─────────────────────────────────────────
+        const setupScreen   = document.getElementById('setupScreen');
+        const mainScreen    = document.getElementById('mainScreen');
+        const setupForm     = document.getElementById('setupForm');
         const setupProvider = document.getElementById('setupProvider');
-        const ifkFields = document.getElementById('ifkFields');
-        const localFields = document.getElementById('localFields');
-        const setupProductId = document.getElementById('setupProductId');
+        const ifkFields     = document.getElementById('ifkFields');
+        const localFields   = document.getElementById('localFields');
+        const setupProductId= document.getElementById('setupProductId');
         const setupApiToken = document.getElementById('setupApiToken');
-        const setupLmUrl = document.getElementById('setupLmUrl');
-        const setupBtn = document.getElementById('setupBtn');
-        const setupStatus = document.getElementById('setupStatus');
-
-        // Main elements
-        const formSelect = document.getElementById('formSelect');
-        const fileInput = document.getElementById('fileInput');
-        const folderInput = document.getElementById('folderInput');
-        const dropZone = document.getElementById('dropZone');
-        const fileList = document.getElementById('fileList');
-        const submitBtn = document.getElementById('submitBtn');
-        const status = document.getElementById('status');
-        const form = document.getElementById('fillForm');
-        const openSetup = document.getElementById('openSetup');
-        const browseFile = document.getElementById('browseFile');
-        const browseFolder = document.getElementById('browseFolder');
+        const setupLmUrl    = document.getElementById('setupLmUrl');
+        const setupBtn      = document.getElementById('setupBtn');
+        const setupStatus   = document.getElementById('setupStatus');
+        const formSelect    = document.getElementById('formSelect');
+        const fileInput     = document.getElementById('fileInput');
+        const folderInput   = document.getElementById('folderInput');
+        const dropZone      = document.getElementById('dropZone');
+        const fileList      = document.getElementById('fileList');
+        const submitBtn     = document.getElementById('submitBtn');
+        const statusEl      = document.getElementById('status');
+        const fillForm      = document.getElementById('fillForm');
+        const openSetup     = document.getElementById('openSetup');
+        const browseFile    = document.getElementById('browseFile');
+        const browseFolder  = document.getElementById('browseFolder');
 
         let selectedFiles = [];
-        const ALLOWED_EXTENSIONS = ['.pdf', '.txt'];
+        const ALLOWED = ['.pdf', '.txt'];
 
-        // ──────────────────────────────────────────────────
-        // Screen navigation
-        // ──────────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // Status helpers
+        // ─────────────────────────────────────────
+        function showStatus(el, type, html) {
+            el.className = 'status-banner visible ' + type;
+            el.innerHTML = (type === 'loading')
+                ? `<div class="spinner"></div><span>${html}</span>`
+                : `<span>${html}</span>`;
+        }
+
+        function hideStatus(el) {
+            el.className = 'status-banner';
+            el.innerHTML = '';
+        }
+
+        // ─────────────────────────────────────────
+        // Navigation
+        // ─────────────────────────────────────────
         function showSetup() {
             setupScreen.classList.remove('hidden');
             mainScreen.classList.add('hidden');
-            // Load existing config into form
             fetch(API_BASE + '/config')
                 .then(r => r.json())
                 .then(data => {
                     const cfg = data.config;
                     setupProvider.value = cfg.llm_provider || 'infomaniak';
                     setupProductId.value = cfg.ifk_product_id || '';
-                    // Don't pre-fill masked token — leave empty so user knows to re-enter
                     setupApiToken.value = '';
-                    setupApiToken.placeholder = data.configured ? 'Deja configure (laisser vide pour garder)' : 'Votre token API Infomaniak';
+                    setupApiToken.placeholder = data.configured
+                        ? 'Déjà configuré (laisser vide pour garder)'
+                        : 'Requis';
                     setupLmUrl.value = cfg.lmstudio_base_url || 'http://localhost:1234/v1';
                     toggleProviderFields();
                 });
@@ -448,91 +688,57 @@
         setupProvider.addEventListener('change', toggleProviderFields);
         openSetup.addEventListener('click', showSetup);
 
-        // ──────────────────────────────────────────────────
-        // Setup form submission
-        // ──────────────────────────────────────────────────
-        setupForm.addEventListener('submit', async (e) => {
+        // ─────────────────────────────────────────
+        // Setup form
+        // ─────────────────────────────────────────
+        setupForm.addEventListener('submit', async e => {
             e.preventDefault();
             setupBtn.disabled = true;
-            setupStatus.className = 'status loading';
-            setupStatus.textContent = 'Sauvegarde en cours...';
+            showStatus(setupStatus, 'loading', 'Sauvegarde…');
 
             const payload = { llm_provider: setupProvider.value };
-
             if (setupProvider.value === 'infomaniak') {
                 payload.ifk_product_id = setupProductId.value.trim();
-                // Only send token if user typed a new one
-                if (setupApiToken.value.trim()) {
-                    payload.ifk_api_token = setupApiToken.value.trim();
-                }
+                if (setupApiToken.value.trim()) payload.ifk_api_token = setupApiToken.value.trim();
             } else {
                 payload.lmstudio_base_url = setupLmUrl.value.trim();
             }
 
             try {
-                const saveRes = await fetch('/config', {
+                const res = await fetch('/config', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const saveData = await saveRes.json();
+                const data = await res.json();
+                if (!data.ok) throw new Error(data.error || 'Erreur de sauvegarde');
 
-                if (!saveData.ok) {
-                    throw new Error(saveData.error || 'Erreur de sauvegarde');
-                }
-
-                // Test connection
-                setupStatus.textContent = 'Test de connexion...';
+                showStatus(setupStatus, 'loading', 'Test de connexion…');
                 const testRes = await fetch(API_BASE + '/config/test', { method: 'POST' });
                 const testData = await testRes.json();
 
                 if (testData.ok) {
-                    setupStatus.className = 'status success';
-                    setupStatus.textContent = 'Connexion reussie !';
-                    setTimeout(showMain, 1000);
+                    showStatus(setupStatus, 'success', 'Connexion réussie !');
+                    setTimeout(showMain, 900);
                 } else {
-                    setupStatus.className = 'status success';
-                    setupStatus.textContent = 'Configuration sauvegardee. Connexion non verifiee : ' + (testData.error || 'serveur injoignable');
-                    setTimeout(showMain, 2000);
+                    showStatus(setupStatus, 'success', 'Sauvegardé. Connexion non vérifiée : ' + (testData.error || ''));
+                    setTimeout(showMain, 1800);
                 }
             } catch (err) {
-                setupStatus.className = 'status error';
-                setupStatus.textContent = err.message;
+                showStatus(setupStatus, 'error', err.message);
             } finally {
                 setupBtn.disabled = false;
             }
         });
 
-        // ──────────────────────────────────────────────────
-        // Init: wait for backend then check config
-        // ──────────────────────────────────────────────────
-        async function waitForBackend(retries = 15, delay = 500) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const r = await fetch(API_BASE + '/config');
-                    if (r.ok) return await r.json();
-                } catch (_) { /* server not ready yet */ }
-                await new Promise(res => setTimeout(res, delay));
-            }
-            return null;
-        }
-
-        waitForBackend().then(data => {
-            if (data && data.configured) {
-                showMain();
-            } else {
-                showSetup();
-            }
-        });
-
-        // ──────────────────────────────────────────────────
-        // Main screen: form loading
-        // ──────────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // Forms
+        // ─────────────────────────────────────────
         function loadForms() {
             fetch(API_BASE + '/forms')
                 .then(r => r.json())
                 .then(forms => {
-                    formSelect.innerHTML = '<option value="">Selectionnez un formulaire</option>';
+                    formSelect.innerHTML = '<option value="">Sélectionnez un formulaire</option>';
                     forms.forEach(f => {
                         const opt = document.createElement('option');
                         opt.value = f.id;
@@ -545,125 +751,85 @@
                 });
         }
 
-        // ──────────────────────────────────────────────────
-        // File handling (files + folder drag & drop)
-        // ──────────────────────────────────────────────────
+        // ─────────────────────────────────────────
+        // File handling
+        // ─────────────────────────────────────────
         function isAllowed(name) {
-            return ALLOWED_EXTENSIONS.some(ext => name.toLowerCase().endsWith(ext));
+            return ALLOWED.some(ext => name.toLowerCase().endsWith(ext));
         }
 
-        // Recursively read a dropped directory entry
         function readEntry(entry) {
-            return new Promise((resolve) => {
+            return new Promise(resolve => {
                 if (entry.isFile) {
                     entry.file(f => resolve(isAllowed(f.name) ? [f] : []));
                 } else if (entry.isDirectory) {
                     const reader = entry.createReader();
-                    const allFiles = [];
+                    const all = [];
                     const readBatch = () => {
                         reader.readEntries(entries => {
-                            if (entries.length === 0) {
-                                resolve(allFiles);
-                            } else {
-                                Promise.all(entries.map(readEntry)).then(results => {
-                                    results.forEach(r => allFiles.push(...r));
-                                    readBatch();
-                                });
-                            }
+                            if (!entries.length) { resolve(all); return; }
+                            Promise.all(entries.map(readEntry)).then(res => {
+                                res.forEach(r => all.push(...r));
+                                readBatch();
+                            });
                         });
                     };
                     readBatch();
-                } else {
-                    resolve([]);
-                }
+                } else resolve([]);
             });
         }
 
-        // ── Prevent browser from navigating when files are dropped anywhere ──
-        // This is CRITICAL for Tauri/WKWebView: without this, dropping a file
-        // on the window navigates away from the app.
-        document.addEventListener('dragover', (e) => e.preventDefault());
-        document.addEventListener('drop', (e) => e.preventDefault());
+        document.addEventListener('dragover', e => e.preventDefault());
+        document.addEventListener('drop',     e => e.preventDefault());
 
-        // Browse buttons (prevent click from propagating to dropZone)
-        browseFile.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
-        browseFolder.addEventListener('click', (e) => { e.stopPropagation(); folderInput.click(); });
-
-        // Clicking the drop zone itself opens the file picker
+        browseFile.addEventListener('click',   e => { e.stopPropagation(); fileInput.click(); });
+        browseFolder.addEventListener('click', e => { e.stopPropagation(); folderInput.click(); });
         dropZone.addEventListener('click', () => fileInput.click());
 
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.add('dragover');
-        });
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', e => { e.stopPropagation(); dropZone.classList.remove('dragover'); });
+        dropZone.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); });
 
-        dropZone.addEventListener('dragleave', (e) => {
-            e.stopPropagation();
+        dropZone.addEventListener('drop', async e => {
+            e.preventDefault(); e.stopPropagation();
             dropZone.classList.remove('dragover');
-        });
-
-        dropZone.addEventListener('dragenter', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        // Drop: handle both files and folders
-        dropZone.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.remove('dragover');
-
             const items = e.dataTransfer.items;
-            if (items && items.length > 0 && items[0].webkitGetAsEntry) {
-                // Use Entry API to support folders
-                const entries = Array.from(items)
-                    .map(item => item.webkitGetAsEntry())
-                    .filter(Boolean);
-                const results = await Promise.all(entries.map(readEntry));
-                const files = results.flat();
-                addFiles(files);
-            } else if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                // Fallback: plain file list
-                const files = Array.from(e.dataTransfer.files).filter(f => isAllowed(f.name));
-                addFiles(files);
+            if (items?.length && items[0].webkitGetAsEntry) {
+                const entries = Array.from(items).map(i => i.webkitGetAsEntry()).filter(Boolean);
+                addFiles((await Promise.all(entries.map(readEntry))).flat());
+            } else if (e.dataTransfer.files?.length) {
+                addFiles(Array.from(e.dataTransfer.files).filter(f => isAllowed(f.name)));
             }
         });
 
-        fileInput.addEventListener('change', () => {
-            addFiles(Array.from(fileInput.files));
-            fileInput.value = '';
-        });
-
+        fileInput.addEventListener('change', () => { addFiles(Array.from(fileInput.files)); fileInput.value = ''; });
         folderInput.addEventListener('change', () => {
-            const files = Array.from(folderInput.files).filter(f => isAllowed(f.name));
-            addFiles(files);
+            addFiles(Array.from(folderInput.files).filter(f => isAllowed(f.name)));
             folderInput.value = '';
         });
 
         function addFiles(files) {
             files.forEach(f => {
-                if (!selectedFiles.find(sf => sf.name === f.name && sf.size === f.size)) {
+                if (!selectedFiles.find(sf => sf.name === f.name && sf.size === f.size))
                     selectedFiles.push(f);
-                }
             });
-            updateFileList();
+            renderFileList();
             updateSubmitBtn();
         }
 
-        function removeFile(index) {
-            selectedFiles.splice(index, 1);
-            updateFileList();
+        function removeFile(i) {
+            selectedFiles.splice(i, 1);
+            renderFileList();
             updateSubmitBtn();
         }
 
-        function updateFileList() {
-            fileList.innerHTML = selectedFiles.map((f, i) =>
-                `<div class="file-item">
-                    <span>${f.name}</span>
-                    <button type="button" onclick="removeFile(${i})">x</button>
-                </div>`
-            ).join('');
+        function renderFileList() {
+            fileList.innerHTML = selectedFiles.map((f, i) => `
+                <div class="file-item">
+                    <span class="file-item-icon">${f.name.endsWith('.pdf') ? '📕' : '📄'}</span>
+                    <span class="file-item-name">${f.name}</span>
+                    <button type="button" class="file-item-remove" onclick="removeFile(${i})">✕</button>
+                </div>`).join('');
         }
 
         function updateSubmitBtn() {
@@ -672,66 +838,74 @@
 
         formSelect.addEventListener('change', updateSubmitBtn);
 
+        // ─────────────────────────────────────────
         // Form submission
-        form.addEventListener('submit', async (e) => {
+        // ─────────────────────────────────────────
+        fillForm.addEventListener('submit', async e => {
             e.preventDefault();
-
-            const formId = formSelect.value;
-            if (!formId || selectedFiles.length === 0) return;
+            if (!formSelect.value || !selectedFiles.length) return;
 
             submitBtn.disabled = true;
-            status.className = 'status loading';
-            status.innerHTML = '<span class="spinner"></span> Traitement en cours...';
+            showStatus(statusEl, 'loading', 'Traitement en cours…');
 
             const formData = new FormData();
             selectedFiles.forEach(f => formData.append('reports', f));
 
             try {
-                const response = await fetch(`${API_BASE}/fill/${formId}`, {
-                    method: 'POST',
-                    body: formData
+                const response = await fetch(`${API_BASE}/fill/${formSelect.value}`, {
+                    method: 'POST', body: formData
                 });
 
                 if (response.ok) {
                     const blob = await response.blob();
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
+                    const url  = URL.createObjectURL(blob);
+                    const a    = document.createElement('a');
                     a.href = url;
-                    const filename = response.headers.get('content-disposition')?.split('filename=')[1] || 'filled.pdf';
-                    a.download = filename;
+                    a.download = response.headers.get('content-disposition')?.split('filename=')[1] || 'filled.pdf';
                     a.click();
                     URL.revokeObjectURL(url);
 
-                    status.className = 'status success';
-                    status.textContent = 'Formulaire rempli avec succes ! Fichier telecharge.';
+                    showStatus(statusEl, 'success', 'Formulaire rempli avec succès · fichier téléchargé');
 
-                    // Desktop notification
                     if ('Notification' in window) {
                         if (Notification.permission === 'granted') {
-                            new Notification('DoctorFill', {
-                                body: 'Formulaire rempli avec succes !\n' + filename,
-                            });
+                            new Notification('DoctorFill', { body: 'Formulaire rempli avec succès !' });
                         } else if (Notification.permission !== 'denied') {
                             Notification.requestPermission().then(p => {
-                                if (p === 'granted') {
-                                    new Notification('DoctorFill', {
-                                        body: 'Formulaire rempli avec succes !\n' + filename,
-                                    });
-                                }
+                                if (p === 'granted')
+                                    new Notification('DoctorFill', { body: 'Formulaire rempli avec succès !' });
                             });
                         }
                     }
                 } else {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erreur de traitement');
+                    const err = await response.json();
+                    throw new Error(err.error || 'Erreur de traitement');
                 }
             } catch (err) {
-                status.className = 'status error';
-                status.textContent = err.message;
+                showStatus(statusEl, 'error', err.message);
             } finally {
                 submitBtn.disabled = false;
                 updateSubmitBtn();
             }
+        });
+
+        // ─────────────────────────────────────────
+        // Init
+        // ─────────────────────────────────────────
+        async function waitForBackend(retries = 15, delay = 500) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const r = await fetch(API_BASE + '/config');
+                    if (r.ok) return await r.json();
+                } catch (_) {}
+                await new Promise(res => setTimeout(res, delay));
+            }
+            return null;
+        }
+
+        waitForBackend().then(data => {
+            if (data?.configured) showMain();
+            else showSetup();
         });
     </script>
 </body>
