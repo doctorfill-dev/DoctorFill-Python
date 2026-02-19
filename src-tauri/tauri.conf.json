@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/nicegui/tauri-v2/main/tauri.conf.schema.json",
   "productName": "DoctorFill",
   "version": "0.1.0",
-  "identifier": "dev.doctorfill.app",
+  "identifier": "dev.doctorfill.desktop",
   "build": {
     "devUrl": "http://localhost:8000",
     "frontendDist": "../src/web/static"

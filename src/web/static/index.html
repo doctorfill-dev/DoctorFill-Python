@@ -568,6 +568,12 @@
             });
         }
 
+        // ── Prevent browser from navigating when files are dropped anywhere ──
+        // This is CRITICAL for Tauri/WKWebView: without this, dropping a file
+        // on the window navigates away from the app.
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => e.preventDefault());
+
         // Browse buttons (prevent click from propagating to dropZone)
         browseFile.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
         browseFolder.addEventListener('click', (e) => { e.stopPropagation(); folderInput.click(); });
@@ -577,16 +583,24 @@
 
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             dropZone.classList.add('dragover');
         });
 
-        dropZone.addEventListener('dragleave', () => {
+        dropZone.addEventListener('dragleave', (e) => {
+            e.stopPropagation();
             dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
         });
 
         // Drop: handle both files and folders
         dropZone.addEventListener('drop', async (e) => {
             e.preventDefault();
+            e.stopPropagation();
             dropZone.classList.remove('dragover');
 
             const items = e.dataTransfer.items;
@@ -598,7 +612,7 @@
                 const results = await Promise.all(entries.map(readEntry));
                 const files = results.flat();
                 addFiles(files);
-            } else {
+            } else if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 // Fallback: plain file list
                 const files = Array.from(e.dataTransfer.files).filter(f => isAllowed(f.name));
                 addFiles(files);
@@ -672,12 +686,30 @@
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = response.headers.get('content-disposition')?.split('filename=')[1] || 'filled.pdf';
+                    const filename = response.headers.get('content-disposition')?.split('filename=')[1] || 'filled.pdf';
+                    a.download = filename;
                     a.click();
                     URL.revokeObjectURL(url);
 
                     status.className = 'status success';
-                    status.textContent = 'Formulaire rempli avec succes !';
+                    status.textContent = 'Formulaire rempli avec succes ! Fichier telecharge.';
+
+                    // Desktop notification
+                    if ('Notification' in window) {
+                        if (Notification.permission === 'granted') {
+                            new Notification('DoctorFill', {
+                                body: 'Formulaire rempli avec succes !\n' + filename,
+                            });
+                        } else if (Notification.permission !== 'denied') {
+                            Notification.requestPermission().then(p => {
+                                if (p === 'granted') {
+                                    new Notification('DoctorFill', {
+                                        body: 'Formulaire rempli avec succes !\n' + filename,
+                                    });
+                                }
+                            });
+                        }
+                    }
                 } else {
                     const error = await response.json();
                     throw new Error(error.error || 'Erreur de traitement');

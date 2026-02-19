@@ -40,26 +40,42 @@ fn start_python_backend(app: &tauri::AppHandle) -> tauri_plugin_shell::process::
     child
 }
 
-/// Wait for the Flask backend to become ready by polling its health endpoint.
-fn wait_for_backend(max_retries: u32) -> bool {
-    let url = format!("http://localhost:{}/health", FLASK_PORT);
-    for i in 1..=max_retries {
-        match reqwest::blocking::get(&url) {
-            Ok(resp) if resp.status().is_success() => {
-                println!("[tauri] Backend ready after {} attempt(s)", i);
-                return true;
-            }
-            _ => {
-                println!(
-                    "[tauri] Waiting for backend... attempt {}/{}",
-                    i, max_retries
-                );
-                std::thread::sleep(std::time::Duration::from_millis(500));
-            }
-        }
-    }
-    eprintln!("[tauri] Backend did not start in time!");
-    false
+/// Loading page shown while Flask sidecar starts up.
+fn loading_html() -> String {
+    format!(
+        r#"data:text/html,
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body {{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }}
+  .loader {{
+    text-align:center; color:white;
+  }}
+  .loader h1 {{ font-size:1.75rem; margin-bottom:1rem; }}
+  .spinner {{
+    width:40px; height:40px; margin:0 auto 1rem;
+    border:4px solid rgba(255,255,255,0.3); border-top-color:white;
+    border-radius:50%; animation:spin 1s linear infinite;
+  }}
+  @keyframes spin {{ to {{ transform:rotate(360deg); }} }}
+  .loader p {{ opacity:0.8; font-size:0.9rem; }}
+</style>
+</head>
+<body>
+  <div class="loader">
+    <h1>DoctorFill</h1>
+    <div class="spinner"></div>
+    <p>Demarrage du serveur...</p>
+  </div>
+</body>
+</html>"#
+    )
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -67,39 +83,64 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .setup(move |app| {
-            // ── Production build ──────────────────────────────────
-            // Launch sidecar, wait for Flask, create window pointing to Flask HTTP.
+            // ── Create the window immediately with a loading page ─────
+            // This avoids the blank white screen the user sees while
+            // the Flask sidecar takes ~12s to start.
+            let loading_url: tauri::Url = loading_html().parse().expect("invalid data URI");
+
+            let _window = WebviewWindowBuilder::new(
+                app,
+                "main",
+                WebviewUrl::External(loading_url),
+            )
+            .title("DoctorFill")
+            .inner_size(700.0, 850.0)
+            .resizable(true)
+            .center()
+            // Disable Tauri's native drag-drop interception so the
+            // browser's standard HTML5 drag & drop API works
+            // (files from Finder → webview drop zone).
+            .disable_drag_drop_handler()
+            .build()?;
+
+            // ── Start sidecar + navigate when ready (in background) ──
             #[cfg(not(dev))]
             {
                 let child = start_python_backend(app.handle());
                 app.manage(child);
-                wait_for_backend(30);
             }
 
-            // ── Dev mode ─────────────────────────────────────────
-            // Flask must be started externally (e.g. `python -m flask run -p 8000`)
-            // before running `tauri dev`. Wait for it to be up.
-            #[cfg(dev)]
-            {
-                wait_for_backend(20);
-            }
+            // Navigate to Flask once it is ready (runs in async so UI stays responsive)
+            let handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                let url = format!("http://localhost:{}/health", FLASK_PORT);
+                let max_retries = 60; // 30 seconds
 
-            // ── Create main window ───────────────────────────────
-            // Always point the webview at Flask over plain HTTP.
-            // This eliminates the mixed-content issue entirely:
-            //   - No https://tauri.localhost → http://localhost cross-origin
-            //   - Flask serves both HTML and API on the same origin
-            //   - No CORS needed
-            let url: tauri::Url = format!("http://localhost:{}", FLASK_PORT)
-                .parse()
-                .expect("invalid URL");
-
-            WebviewWindowBuilder::new(app, "main", WebviewUrl::External(url))
-                .title("DoctorFill")
-                .inner_size(700.0, 850.0)
-                .resizable(true)
-                .center()
-                .build()?;
+                for i in 1..=max_retries {
+                    match reqwest::get(&url).await {
+                        Ok(resp) if resp.status().is_success() => {
+                            println!("[tauri] Backend ready after {} attempt(s)", i);
+                            // Navigate the window to Flask
+                            if let Some(w) = handle.get_webview_window("main") {
+                                let flask_url: tauri::Url =
+                                    format!("http://localhost:{}", FLASK_PORT)
+                                        .parse()
+                                        .expect("invalid Flask URL");
+                                let _ = w.navigate(flask_url);
+                            }
+                            return;
+                        }
+                        _ => {
+                            println!(
+                                "[tauri] Waiting for backend... attempt {}/{}",
+                                i, max_retries
+                            );
+                            tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+                        }
+                    }
+                }
+                eprintln!("[tauri] Backend did not start in time!");
+            });
 
             Ok(())
         })

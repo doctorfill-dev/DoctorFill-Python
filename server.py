@@ -12,10 +12,12 @@ import multiprocessing
 # Fix for macOS/Windows PyInstaller + multiprocessing
 multiprocessing.freeze_support()
 
-# Ensure the project root is in sys.path for absolute imports
-# when running as a PyInstaller bundle.
+# When running as a PyInstaller bundle:
 if getattr(sys, '_MEIPASS', None):
+    # Ensure absolute imports work
     sys.path.insert(0, sys._MEIPASS)
+    # Force debug off in bundled mode (prevents Flask reloader double-start)
+    os.environ.setdefault('DEBUG', 'false')
 
 if __name__ == "__main__":
     from src.web.app import main
