@@ -35,7 +35,9 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__, static_folder="static", static_url_path="")
 
 # Enable CORS for Tauri webview (tauri://localhost) and local dev
-CORS(app, origins=["tauri://localhost", "http://localhost:*", "https://tauri.localhost"])
+CORS(app, origins=["tauri://localhost", "https://tauri.localhost",
+                   "http://localhost:8000", "http://127.0.0.1:8000",
+                   "http://localhost:1420", "http://127.0.0.1:1420"])
 
 # Configure upload limits
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES

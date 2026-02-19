@@ -25,13 +25,19 @@ _FROZEN = getattr(sys, '_MEIPASS', None)
 
 if _FROZEN:
     # PyInstaller bundle: read-only assets are in _MEIPASS,
-    # writable dirs (data, logs) live next to the executable.
+    # writable dirs (data, logs) use platform-appropriate user data directories.
     _BUNDLE_DIR = Path(_FROZEN)
     _APP_DIR = Path(sys.executable).parent
     TEMPLATES_DIR = _BUNDLE_DIR / "templates"
     FORMS_DIR = _BUNDLE_DIR / "forms"
-    DATA_DIR = _APP_DIR / "data"
-    LOGS_DIR = _APP_DIR / "logs"
+    # On Windows, use %APPDATA%\DoctorFill to avoid permission issues in Program Files.
+    # On other platforms, keep data/logs next to the executable.
+    if sys.platform == "win32":
+        _USER_DATA_DIR = Path(os.environ.get("APPDATA", _APP_DIR)) / "DoctorFill"
+    else:
+        _USER_DATA_DIR = _APP_DIR
+    DATA_DIR = _USER_DATA_DIR / "data"
+    LOGS_DIR = _USER_DATA_DIR / "logs"
     PROJECT_ROOT = _APP_DIR
 else:
     # Normal development mode

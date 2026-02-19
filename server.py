@@ -19,6 +19,7 @@ if getattr(sys, '_MEIPASS', None):
     # Force debug off in bundled mode (prevents Flask reloader double-start)
     os.environ.setdefault('DEBUG', 'false')
 
+from src.web.app import main
+
 if __name__ == "__main__":
-    from src.web.app import main
     main()
