@@ -38,7 +38,10 @@ jobs:
           pip install pyinstaller
 
       - name: Build Python sidecar
-        run: pyinstaller --noconfirm pyinstaller.spec
+        shell: bash
+        run: |
+          export DOCTORFILL_VERSION="${GITHUB_REF_NAME#v}"
+          pyinstaller --noconfirm pyinstaller.spec
 
       - name: Copy sidecar binary (Unix)
         if: runner.os != 'Windows'
