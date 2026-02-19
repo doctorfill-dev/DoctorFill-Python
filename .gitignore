@@ -57,6 +57,7 @@ build/
 # Tauri
 src-tauri/target/
 src-tauri/binaries/
+src-tauri/gen/
 
 # Node
 node_modules/
