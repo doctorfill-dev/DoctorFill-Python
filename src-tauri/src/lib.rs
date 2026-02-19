@@ -7,107 +7,170 @@ use tauri_plugin_shell::ShellExt;
 
 const FLASK_PORT: u16 = 8000;
 
-/// Holds the sidecar process so we can kill it when the app exits.
+// ── Windows Job Object ────────────────────────────────────────────────────────
+//
+// On Windows, killing a PyInstaller --onefile process only kills the
+// bootstrapper (parent). The real Python child process becomes an orphan and
+// keeps running (holding port 8000) even after the Tauri app exits.
+//
+// A Windows Job Object with JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE solves this
+// at the OS level: when the last handle to the Job is closed (i.e. when the
+// Tauri process exits for any reason — normal close, crash, task-kill), Windows
+// automatically terminates every process in the Job, including all children.
+// No Rust cleanup code, no RunEvent handler, no watchdog process needed.
+//
+// We assign the sidecar to the Job immediately after spawning it. The Job
+// handle is stored in a global so it stays open for the entire lifetime of the
+// Tauri process.
+//
+// References:
+//   https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects
+//   Child processes spawned by the sidecar (e.g. PyInstaller unpacked Python)
+//   are also automatically added to the Job unless they explicitly break away.
+#[cfg(windows)]
+mod job {
+    use windows_sys::Win32::Foundation::{CloseHandle, HANDLE, INVALID_HANDLE_VALUE};
+    use windows_sys::Win32::Security::SECURITY_ATTRIBUTES;
+    use windows_sys::Win32::System::JobObjects::{
+        AssignProcessToJobObject, CreateJobObjectW, JobObjectExtendedLimitInformation,
+        SetInformationJobObject, JOBOBJECT_EXTENDED_LIMIT_INFORMATION,
+        JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE,
+    };
+    use windows_sys::Win32::System::Threading::OpenProcess;
+    use windows_sys::Win32::System::Threading::PROCESS_ALL_ACCESS;
+
+    use std::sync::OnceLock;
+
+    /// Global Job Object handle. Kept open for the Tauri process lifetime.
+    /// When this handle is closed (process exit), Windows kills all job members.
+    static JOB_HANDLE: OnceLock<JobHandle> = OnceLock::new();
+
+    /// Newtype wrapper so we can implement Send + Sync on a raw HANDLE.
+    struct JobHandle(HANDLE);
+    // SAFETY: The handle is only written once via OnceLock and never closed
+    // manually — Windows closes it on process exit.
+    unsafe impl Send for JobHandle {}
+    unsafe impl Sync for JobHandle {}
+
+    impl Drop for JobHandle {
+        fn drop(&mut self) {
+            unsafe {
+                if self.0 != INVALID_HANDLE_VALUE && !self.0.is_null() {
+                    CloseHandle(self.0);
+                }
+            }
+        }
+    }
+
+    /// Create the global Job Object with KILL_ON_JOB_CLOSE.
+    /// Must be called once at startup, before spawning the sidecar.
+    pub fn create_job() {
+        unsafe {
+            let job = CreateJobObjectW(std::ptr::null::<SECURITY_ATTRIBUTES>(), std::ptr::null());
+            if job.is_null() {
+                eprintln!("[tauri] CreateJobObjectW failed");
+                return;
+            }
+
+            // Set KILL_ON_JOB_CLOSE so all members die when our handle closes.
+            let mut info: JOBOBJECT_EXTENDED_LIMIT_INFORMATION = std::mem::zeroed();
+            info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+
+            let ok = SetInformationJobObject(
+                job,
+                JobObjectExtendedLimitInformation,
+                &raw const info as *const _,
+                std::mem::size_of::<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>() as u32,
+            );
+
+            if ok == 0 {
+                eprintln!("[tauri] SetInformationJobObject failed");
+                CloseHandle(job);
+                return;
+            }
+
+            // Store handle globally — never manually closed, Windows does it on exit.
+            let _ = JOB_HANDLE.set(JobHandle(job));
+            println!("[tauri] Job Object created (KILL_ON_JOB_CLOSE)");
+        }
+    }
+
+    /// Assign a process (by PID) to the global Job Object.
+    pub fn assign_pid_to_job(pid: u32) {
+        let Some(job) = JOB_HANDLE.get() else {
+            eprintln!("[tauri] Job not initialized, cannot assign PID {}", pid);
+            return;
+        };
+
+        unsafe {
+            let proc = OpenProcess(PROCESS_ALL_ACCESS, 0, pid);
+            if proc.is_null() {
+                eprintln!("[tauri] OpenProcess failed for PID {}", pid);
+                return;
+            }
+
+            let ok = AssignProcessToJobObject(job.0, proc);
+            CloseHandle(proc);
+
+            if ok == 0 {
+                eprintln!("[tauri] AssignProcessToJobObject failed for PID {}", pid);
+            } else {
+                println!("[tauri] PID {} assigned to Job Object", pid);
+            }
+        }
+    }
+}
+
+// ── Sidecar state ─────────────────────────────────────────────────────────────
+
+/// Holds the sidecar process handle for explicit cleanup on graceful exit.
+/// The Job Object is the primary safety net on Windows; this is belt-and-suspenders.
 struct Sidecar(Mutex<Option<tauri_plugin_shell::process::CommandChild>>);
 
 impl Sidecar {
-    /// Kill the sidecar process and its children.
+    /// Explicit kill: send kill signal + platform-specific tree kill.
     fn kill(&self) {
         if let Ok(mut guard) = self.0.lock() {
             if let Some(child) = guard.take() {
-                println!("[tauri] Killing sidecar process...");
+                println!("[tauri] Sending kill to sidecar...");
                 let _ = child.kill();
-                println!("[tauri] Sidecar killed.");
             }
         }
-        // Belt-and-suspenders: also kill any process listening on our port.
-        // This catches child processes spawned by the sidecar (e.g. Flask reloader).
-        Self::kill_port_holder();
-    }
-
-    /// Kill any process listening on FLASK_PORT.
-    /// Works on macOS and Linux via lsof, on Windows via netstat/taskkill.
-    fn kill_port_holder() {
-        #[cfg(unix)]
-        {
-            let _ = std::process::Command::new("sh")
-                .args([
-                    "-c",
-                    &format!(
-                        "lsof -ti :{} | xargs kill -9 2>/dev/null",
-                        FLASK_PORT
-                    ),
-                ])
-                .output();
-        }
+        // Windows: kill the entire process tree by image name.
+        // This handles the PyInstaller parent+child situation explicitly
+        // and complements the Job Object for graceful exit paths.
         #[cfg(windows)]
-        {
-            // Find PID listening on port and kill it
-            let output = std::process::Command::new("cmd")
-                .args([
-                    "/C",
-                    &format!(
-                        "for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :{} ^| findstr LISTENING') do taskkill /F /PID %a",
-                        FLASK_PORT
-                    ),
-                ])
-                .output();
-            let _ = output;
-        }
-    }
-}
+        Self::kill_process_tree_windows();
 
-/// Spawn a background watchdog process that monitors the main Tauri app PID.
-/// If the main app dies (SIGTERM, SIGKILL, crash), the watchdog process
-/// kills any process holding our Flask port.
-/// This is necessary because:
-/// - macOS Cocoa/NSApplication overrides SIGTERM handlers
-/// - Tauri's RunEvent::Exit may not fire on forced kills
-/// - Child processes become orphaned when the parent is killed
-fn spawn_sidecar_watchdog() {
-    let main_pid = std::process::id();
+        // Unix: kill by port (lsof).
+        #[cfg(unix)]
+        Self::kill_port_unix();
+    }
+
+    /// Windows: taskkill /F /IM <name> /T — kills ALL instances + their children.
+    #[cfg(windows)]
+    fn kill_process_tree_windows() {
+        let _ = std::process::Command::new("taskkill")
+            .args(["/F", "/IM", "doctorfill-server.exe", "/T"])
+            .output();
+    }
+
+    /// Unix: kill by port via lsof.
     #[cfg(unix)]
-    {
-        // Spawn a detached shell process that polls the parent PID
+    fn kill_port_unix() {
         let _ = std::process::Command::new("sh")
             .args([
                 "-c",
-                &format!(
-                    // Wait until the main PID disappears, then kill anything on our port
-                    "while kill -0 {} 2>/dev/null; do sleep 1; done; \
-                     sleep 1; \
-                     lsof -ti :{} | xargs kill -9 2>/dev/null",
-                    main_pid, FLASK_PORT
-                ),
+                &format!("lsof -ti :{} | xargs kill -9 2>/dev/null", FLASK_PORT),
             ])
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .spawn();
-    }
-    #[cfg(windows)]
-    {
-        // On Windows, use a PowerShell process to watch for parent death
-        let _ = std::process::Command::new("powershell")
-            .args([
-                "-WindowStyle", "Hidden",
-                "-Command",
-                &format!(
-                    "while (Get-Process -Id {} -ErrorAction SilentlyContinue) {{ Start-Sleep -Seconds 1 }}; \
-                     Start-Sleep -Seconds 1; \
-                     $p = netstat -aon | Select-String ':{} ' | Select-String 'LISTENING'; \
-                     if ($p) {{ $pid = ($p -split '\\s+')[-1]; Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }}",
-                    main_pid, FLASK_PORT
-                ),
-            ])
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::null())
-            .stderr(std::process::Stdio::null())
-            .spawn();
+            .output();
     }
 }
 
-/// Spawn the Python backend sidecar and read its output in background.
+// ── Python backend launcher ───────────────────────────────────────────────────
+
+/// Spawn the Python backend sidecar, assign it to the Job Object (Windows),
+/// and read its output in background.
 fn start_python_backend(app: &tauri::AppHandle) -> tauri_plugin_shell::process::CommandChild {
     let (mut rx, child) = app
         .shell()
@@ -115,6 +178,16 @@ fn start_python_backend(app: &tauri::AppHandle) -> tauri_plugin_shell::process::
         .expect("failed to create doctorfill-server sidecar")
         .spawn()
         .expect("failed to spawn doctorfill-server sidecar");
+
+    // Windows: assign the sidecar PID to the Job Object immediately.
+    // Any child processes it spawns (e.g. PyInstaller unpacked Python) will
+    // also be part of the Job and killed when the Tauri process exits.
+    #[cfg(windows)]
+    {
+        let pid = child.pid();
+        println!("[tauri] Sidecar PID: {}", pid);
+        job::assign_pid_to_job(pid);
+    }
 
     tauri::async_runtime::spawn(async move {
         while let Some(event) = rx.recv().await {
@@ -138,6 +211,8 @@ fn start_python_backend(app: &tauri::AppHandle) -> tauri_plugin_shell::process::
 
     child
 }
+
+// ── Loading page ──────────────────────────────────────────────────────────────
 
 /// Loading page shown while Flask sidecar starts up.
 /// Uses base64-encoded data URI for reliable rendering on all platforms
@@ -210,11 +285,16 @@ fn base64_encode(input: &[u8]) -> String {
     result
 }
 
+// ── Entry point ───────────────────────────────────────────────────────────────
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // Spawn a watchdog process that will clean up the sidecar if the app
-    // is killed via SIGTERM, SIGKILL, or any unexpected termination.
-    spawn_sidecar_watchdog();
+    // Windows: create the Job Object before spawning anything.
+    // All subsequently spawned sidecar processes will be assigned to it.
+    // When the Tauri process exits (for ANY reason: normal close, crash,
+    // task-kill, forced kill), Windows automatically terminates all job members.
+    #[cfg(windows)]
+    job::create_job();
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -274,7 +354,8 @@ pub fn run() {
 
             Ok(())
         })
-        // ── Kill sidecar when app exits ──────────────────────────────
+        // ── Kill sidecar when app exits (graceful close) ─────────────
+        // The Job Object handles forced kills / crashes automatically.
         .build(tauri::generate_context!())
         .expect("error while building DoctorFill")
         .run(|app_handle, event| {
@@ -284,8 +365,11 @@ pub fn run() {
                     if let Some(state) = app_handle.try_state::<Sidecar>() {
                         state.kill();
                     } else {
-                        // Fallback: kill any process on our port even without state
-                        Sidecar::kill_port_holder();
+                        // Fallback if state was never registered (dev mode)
+                        #[cfg(windows)]
+                        Sidecar::kill_process_tree_windows();
+                        #[cfg(unix)]
+                        Sidecar::kill_port_unix();
                     }
                 }
                 _ => {}
