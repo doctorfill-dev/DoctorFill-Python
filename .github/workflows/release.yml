@@ -160,26 +160,26 @@ jobs:
 
           # ── Build latest.json ─────────────────────────────────────────
           cat > doctorfill-latest.json <<EOF
-          {
-            "version": "${VERSION}",
-            "notes": "See https://github.com/${REPO}/releases/tag/${TAG} for details.",
-            "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-            "platforms": {
-              "windows-x86_64": {
-                "url": "${WIN_URL}",
-                "signature": "${WIN_SIG}"
-              },
-              "darwin-aarch64": {
-                "url": "${MAC_URL}",
-                "signature": "${MAC_SIG}"
-              },
-              "darwin-x86_64": {
-                "url": "${MAC_URL}",
-                "signature": "${MAC_SIG}"
-              }
-            }
-          }
-          EOF
+{
+  "version": "${VERSION}",
+  "notes": "See https://github.com/${REPO}/releases/tag/${TAG} for details.",
+  "pub_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "platforms": {
+    "windows-x86_64": {
+      "url": "${WIN_URL}",
+      "signature": "${WIN_SIG}"
+    },
+    "darwin-aarch64": {
+      "url": "${MAC_URL}",
+      "signature": "${MAC_SIG}"
+    },
+    "darwin-x86_64": {
+      "url": "${MAC_URL}",
+      "signature": "${MAC_SIG}"
+    }
+  }
+}
+EOF
 
           # ── Push to Gist ──────────────────────────────────────────────
           CONTENT=$(jq -Rs . < doctorfill-latest.json)

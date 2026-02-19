@@ -86,6 +86,12 @@
             box-shadow: var(--shadow-lg);
             border: 1px solid var(--separator);
             overflow: hidden;
+            animation: cardIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: scale(0.96) translateY(8px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .card-header {
@@ -96,14 +102,18 @@
         .app-icon {
             width: 64px;
             height: 64px;
-            background: linear-gradient(145deg, #007aff 0%, #5856d6 100%);
             border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             margin: 0 auto 16px;
-            box-shadow: 0 4px 14px rgba(0, 122, 255, 0.35);
-            font-size: 30px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+
+        .app-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .card-header h1 {
@@ -123,6 +133,62 @@
 
         .card-body {
             padding: 24px 28px 28px;
+        }
+
+        /* ── Splash screen ── */
+        .splash {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 28px;
+            animation: fadeIn 0.4s ease both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        .splash-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 18px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            image-rendering: pixelated;
+        }
+
+        .splash-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ── Pulse dots loader ── */
+        .pulse-dots {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .pulse-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulseDot 1.2s ease-in-out infinite;
+        }
+
+        .pulse-dots span:nth-child(1) { animation-delay: 0s; }
+        .pulse-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .pulse-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulseDot {
+            0%, 60%, 100% { transform: scale(0.7); opacity: 0.35; }
+            30%            { transform: scale(1);   opacity: 1; }
         }
 
         /* ── Section groups (iOS grouped style) ── */
@@ -231,30 +297,42 @@
         .drop-zone {
             border: 1.5px dashed var(--separator);
             border-radius: var(--radius-md);
-            padding: 28px 20px;
+            padding: 24px 20px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
             background: var(--bg-input);
             margin-bottom: 12px;
         }
 
-        .drop-zone:hover, .drop-zone.dragover {
+        .drop-zone:hover {
             border-color: var(--accent);
             background: var(--accent-light);
         }
 
+        .drop-zone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: scale(1.01);
+        }
+
         .drop-zone-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
+            font-size: 26px;
+            margin-bottom: 6px;
             opacity: 0.7;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .drop-zone.dragover .drop-zone-icon {
+            transform: scale(1.15) translateY(-2px);
+            opacity: 1;
         }
 
         .drop-zone-title {
             font-size: 14px;
             font-weight: 500;
             color: var(--text-primary);
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         .drop-zone-sub {
@@ -262,11 +340,22 @@
             color: var(--text-secondary);
         }
 
+        .drop-zone-count {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            background: var(--accent-light);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
         .drop-zone-actions {
             display: flex;
             gap: 8px;
             justify-content: center;
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
         .link-btn {
@@ -301,6 +390,12 @@
             background: var(--bg-input);
             border-radius: var(--radius-sm);
             font-size: 13px;
+            animation: fileIn 0.2s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+        }
+
+        @keyframes fileIn {
+            from { opacity: 0; transform: translateY(4px) scale(0.98); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .file-item-icon {
@@ -308,12 +403,23 @@
             flex-shrink: 0;
         }
 
-        .file-item-name {
+        .file-item-info {
             flex: 1;
+            overflow: hidden;
+        }
+
+        .file-item-name {
             color: var(--text-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            display: block;
+        }
+
+        .file-item-size {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 1px;
         }
 
         .file-item-remove {
@@ -321,15 +427,20 @@
             border: none;
             cursor: pointer;
             color: var(--text-tertiary);
-            font-size: 16px;
+            font-size: 14px;
             line-height: 1;
-            padding: 2px 4px;
-            border-radius: 4px;
-            transition: color 0.15s;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s, color 0.15s;
             flex-shrink: 0;
         }
 
         .file-item-remove:hover {
+            background: rgba(255, 59, 48, 0.12);
             color: var(--destructive);
         }
 
@@ -347,6 +458,10 @@
             cursor: pointer;
             transition: background 0.15s, opacity 0.15s, transform 0.1s;
             letter-spacing: -0.1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary:hover:not(:disabled) {
@@ -361,6 +476,24 @@
             opacity: 0.35;
             cursor: not-allowed;
         }
+
+        .btn-primary.loading {
+            opacity: 0.85;
+            cursor: not-allowed;
+        }
+
+        /* Spinner inside button */
+        .btn-spinner {
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ── Text button (header nav) ── */
         .btn-text {
@@ -381,18 +514,24 @@
         /* ── Status banner ── */
         .status-banner {
             border-radius: var(--radius-sm);
-            padding: 12px 14px;
-            font-size: 14px;
+            padding: 11px 14px;
+            font-size: 13.5px;
             display: none;
-            align-items: flex-start;
-            gap: 8px;
+            align-items: center;
+            gap: 9px;
             margin-top: 12px;
+            animation: bannerIn 0.2s ease both;
+        }
+
+        @keyframes bannerIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
         .status-banner.visible { display: flex; }
 
         .status-banner.loading {
-            background: rgba(0, 122, 255, 0.1);
+            background: rgba(0, 122, 255, 0.08);
             color: var(--accent);
         }
 
@@ -410,18 +549,51 @@
             color: var(--destructive);
         }
 
-        /* ── Spinner ── */
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid currentColor;
-            border-top-color: transparent;
-            border-radius: 50%;
-            animation: spin 0.75s linear infinite;
+        .status-icon {
+            font-size: 15px;
             flex-shrink: 0;
-            margin-top: 1px;
+            line-height: 1;
+        }
+
+        /* Inline dots for status loading */
+        .status-dots {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .status-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulseDot 1.2s ease-in-out infinite;
+        }
+
+        .status-dots span:nth-child(1) { animation-delay: 0s; }
+        .status-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .status-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        /* ── Indeterminate progress bar ── */
+        .progress-bar {
+            height: 2px;
+            background: var(--separator);
+            border-radius: 1px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 40%;
+            background: var(--accent);
+            border-radius: 1px;
+            animation: progressSlide 1.4s ease-in-out infinite;
+        }
+
+        @keyframes progressSlide {
+            0%   { transform: translateX(-150%); }
+            100% { transform: translateX(350%); }
         }
 
         /* ── Header row (main screen) ── */
@@ -461,11 +633,22 @@
             font-size: 11px;
             color: var(--text-tertiary);
             letter-spacing: 0.1px;
+            pointer-events: none;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: var(--bg-input);
+            border-radius: 20px;
+            padding: 2px 9px;
+            font-size: 10.5px;
+            font-weight: 500;
+            color: var(--text-tertiary);
+            letter-spacing: 0.2px;
         }
 
         /* ── Utility ── */
         .hidden { display: none !important; }
-
         .mt-4 { margin-top: 16px; }
         .mt-3 { margin-top: 12px; }
     </style>
@@ -473,10 +656,22 @@
 <body>
     <div class="app">
 
+        <!-- ══════════════ SPLASH SCREEN ══════════════ -->
+        <div class="splash" id="splashScreen">
+            <div class="splash-icon">
+                <img src="icon.png" alt="DoctorFill">
+            </div>
+            <div class="pulse-dots">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
         <!-- ══════════════ SETUP SCREEN ══════════════ -->
         <div class="card hidden" id="setupScreen">
             <div class="card-header">
-                <div class="app-icon">⚕️</div>
+                <div class="app-icon">
+                    <img src="icon.png" alt="DoctorFill">
+                </div>
                 <h1>DoctorFill</h1>
                 <p>Configuration du fournisseur IA</p>
             </div>
@@ -567,6 +762,9 @@
                         <div class="drop-zone-icon">📄</div>
                         <div class="drop-zone-title">Déposez vos fichiers ici</div>
                         <div class="drop-zone-sub">PDF ou TXT acceptés</div>
+                        <div id="dropZoneCount" class="hidden">
+                            <span class="drop-zone-count" id="dropZoneCountText"></span>
+                        </div>
                         <div class="drop-zone-actions">
                             <span class="link-btn" id="browseFile">Fichiers</span>
                             <span class="link-btn" id="browseFolder">Dossier</span>
@@ -588,7 +786,7 @@
     </div>
 
     <footer>
-        DoctorFill &nbsp;·&nbsp; <span id="appVersion"></span>
+        <span class="version-badge" id="appVersion"></span>
     </footer>
 
     <script>
@@ -611,6 +809,7 @@
         // ─────────────────────────────────────────
         // Elements
         // ─────────────────────────────────────────
+        const splashScreen  = document.getElementById('splashScreen');
         const setupScreen   = document.getElementById('setupScreen');
         const mainScreen    = document.getElementById('mainScreen');
         const setupForm     = document.getElementById('setupForm');
@@ -626,6 +825,8 @@
         const fileInput     = document.getElementById('fileInput');
         const folderInput   = document.getElementById('folderInput');
         const dropZone      = document.getElementById('dropZone');
+        const dropZoneCount = document.getElementById('dropZoneCount');
+        const dropZoneCountText = document.getElementById('dropZoneCountText');
         const fileList      = document.getElementById('fileList');
         const submitBtn     = document.getElementById('submitBtn');
         const statusEl      = document.getElementById('status');
@@ -640,11 +841,15 @@
         // ─────────────────────────────────────────
         // Status helpers
         // ─────────────────────────────────────────
-        function showStatus(el, type, html) {
+        function showStatus(el, type, text) {
             el.className = 'status-banner visible ' + type;
-            el.innerHTML = (type === 'loading')
-                ? `<div class="spinner"></div><span>${html}</span>`
-                : `<span>${html}</span>`;
+            if (type === 'loading') {
+                el.innerHTML = `<div class="status-dots"><span></span><span></span><span></span></div><span>${text}</span>`;
+            } else if (type === 'success') {
+                el.innerHTML = `<span class="status-icon">✓</span><span>${text}</span>`;
+            } else if (type === 'error') {
+                el.innerHTML = `<span class="status-icon">✕</span><span>${text}</span>`;
+            }
         }
 
         function hideStatus(el) {
@@ -652,10 +857,29 @@
             el.innerHTML = '';
         }
 
+        function setSubmitLoading(loading) {
+            if (loading) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+                submitBtn.innerHTML = `<div class="btn-spinner"></div> Traitement en cours…`;
+            } else {
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = 'Remplir le formulaire';
+                updateSubmitBtn();
+            }
+        }
+
         // ─────────────────────────────────────────
         // Navigation
         // ─────────────────────────────────────────
+        function hideSplash() {
+            splashScreen.style.transition = 'opacity 0.25s ease';
+            splashScreen.style.opacity = '0';
+            setTimeout(() => splashScreen.classList.add('hidden'), 250);
+        }
+
         function showSetup() {
+            hideSplash();
             setupScreen.classList.remove('hidden');
             mainScreen.classList.add('hidden');
             fetch(API_BASE + '/config')
@@ -674,6 +898,7 @@
         }
 
         function showMain() {
+            hideSplash();
             mainScreen.classList.remove('hidden');
             setupScreen.classList.add('hidden');
             loadForms();
@@ -694,7 +919,9 @@
         setupForm.addEventListener('submit', async e => {
             e.preventDefault();
             setupBtn.disabled = true;
-            showStatus(setupStatus, 'loading', 'Sauvegarde…');
+            setupBtn.innerHTML = `<div class="btn-spinner"></div> Sauvegarde…`;
+            setupBtn.classList.add('loading');
+            showStatus(setupStatus, 'loading', 'Sauvegarde en cours…');
 
             const payload = { llm_provider: setupProvider.value };
             if (setupProvider.value === 'infomaniak') {
@@ -721,13 +948,15 @@
                     showStatus(setupStatus, 'success', 'Connexion réussie !');
                     setTimeout(showMain, 900);
                 } else {
-                    showStatus(setupStatus, 'success', 'Sauvegardé. Connexion non vérifiée : ' + (testData.error || ''));
+                    showStatus(setupStatus, 'success', 'Sauvegardé · connexion non vérifiée');
                     setTimeout(showMain, 1800);
                 }
             } catch (err) {
                 showStatus(setupStatus, 'error', err.message);
             } finally {
                 setupBtn.disabled = false;
+                setupBtn.classList.remove('loading');
+                setupBtn.innerHTML = 'Continuer';
             }
         });
 
@@ -752,10 +981,16 @@
         }
 
         // ─────────────────────────────────────────
-        // File handling
+        // File helpers
         // ─────────────────────────────────────────
         function isAllowed(name) {
             return ALLOWED.some(ext => name.toLowerCase().endsWith(ext));
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
 
         function readEntry(entry) {
@@ -779,6 +1014,9 @@
             });
         }
 
+        // ─────────────────────────────────────────
+        // Drag & drop
+        // ─────────────────────────────────────────
         document.addEventListener('dragover', e => e.preventDefault());
         document.addEventListener('drop',     e => e.preventDefault());
 
@@ -786,7 +1024,7 @@
         browseFolder.addEventListener('click', e => { e.stopPropagation(); folderInput.click(); });
         dropZone.addEventListener('click', () => fileInput.click());
 
-        dropZone.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragover',  e => { e.preventDefault(); e.stopPropagation(); dropZone.classList.add('dragover'); });
         dropZone.addEventListener('dragleave', e => { e.stopPropagation(); dropZone.classList.remove('dragover'); });
         dropZone.addEventListener('dragenter', e => { e.preventDefault(); e.stopPropagation(); });
 
@@ -808,6 +1046,9 @@
             folderInput.value = '';
         });
 
+        // ─────────────────────────────────────────
+        // File list management
+        // ─────────────────────────────────────────
         function addFiles(files) {
             files.forEach(f => {
                 if (!selectedFiles.find(sf => sf.name === f.name && sf.size === f.size))
@@ -815,20 +1056,36 @@
             });
             renderFileList();
             updateSubmitBtn();
+            updateDropZoneCount();
         }
 
         function removeFile(i) {
             selectedFiles.splice(i, 1);
             renderFileList();
             updateSubmitBtn();
+            updateDropZoneCount();
+        }
+
+        function updateDropZoneCount() {
+            if (selectedFiles.length > 0) {
+                dropZoneCount.classList.remove('hidden');
+                dropZoneCountText.textContent = selectedFiles.length === 1
+                    ? '1 fichier sélectionné'
+                    : `${selectedFiles.length} fichiers sélectionnés`;
+            } else {
+                dropZoneCount.classList.add('hidden');
+            }
         }
 
         function renderFileList() {
             fileList.innerHTML = selectedFiles.map((f, i) => `
                 <div class="file-item">
-                    <span class="file-item-icon">${f.name.endsWith('.pdf') ? '📕' : '📄'}</span>
-                    <span class="file-item-name">${f.name}</span>
-                    <button type="button" class="file-item-remove" onclick="removeFile(${i})">✕</button>
+                    <span class="file-item-icon">${f.name.toLowerCase().endsWith('.pdf') ? '📕' : '📄'}</span>
+                    <div class="file-item-info">
+                        <span class="file-item-name">${f.name}</span>
+                        <span class="file-item-size">${formatSize(f.size)}</span>
+                    </div>
+                    <button type="button" class="file-item-remove" onclick="removeFile(${i})" title="Supprimer">✕</button>
                 </div>`).join('');
         }
 
@@ -845,8 +1102,8 @@
             e.preventDefault();
             if (!formSelect.value || !selectedFiles.length) return;
 
-            submitBtn.disabled = true;
-            showStatus(statusEl, 'loading', 'Traitement en cours…');
+            setSubmitLoading(true);
+            hideStatus(statusEl);
 
             const formData = new FormData();
             selectedFiles.forEach(f => formData.append('reports', f));
@@ -884,8 +1141,7 @@
             } catch (err) {
                 showStatus(statusEl, 'error', err.message);
             } finally {
-                submitBtn.disabled = false;
-                updateSubmitBtn();
+                setSubmitLoading(false);
             }
         });
 
