@@ -1,0 +1,19 @@
+{
+  "version": "0.0.0",
+  "notes": "Initial placeholder — replaced automatically on each release.",
+  "pub_date": "2026-01-01T00:00:00Z",
+  "platforms": {
+    "windows-x86_64": {
+      "url": "",
+      "signature": ""
+    },
+    "darwin-aarch64": {
+      "url": "",
+      "signature": ""
+    },
+    "darwin-x86_64": {
+      "url": "",
+      "signature": ""
+    }
+  }
+}

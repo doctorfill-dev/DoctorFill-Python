@@ -355,7 +355,7 @@
         </div>
 
         <footer>
-            DoctorFill - RAG + XFA PDF Form Filling
+            DoctorFill - RAG + XFA PDF Form Filling &nbsp;·&nbsp; <span id="appVersion"></span>
         </footer>
     </div>
 
@@ -367,6 +367,17 @@
         // No cross-origin / mixed-content issues.
         // ──────────────────────────────────────────────────
         const API_BASE = '';
+
+        // ──────────────────────────────────────────────────
+        // Version display
+        // ──────────────────────────────────────────────────
+        fetch(API_BASE + '/version')
+            .then(r => r.json())
+            .then(data => {
+                const el = document.getElementById('appVersion');
+                if (el && data.version) el.textContent = 'v' + data.version;
+            })
+            .catch(() => {});
 
         // ──────────────────────────────────────────────────
         // Elements

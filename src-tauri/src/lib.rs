@@ -312,6 +312,8 @@ pub fn run() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(move |app| {
             // ── Create the window immediately with a loading page ─────
             let loading_url: tauri::Url = loading_html().parse().expect("invalid data URI");
@@ -333,6 +335,58 @@ pub fn run() {
             {
                 let child = start_python_backend(app.handle());
                 app.manage(Sidecar::new(child));
+            }
+
+            // ── Check for updates in background (production only) ────
+            // Silent check: downloads and installs automatically, then
+            // prompts the user to restart via a non-blocking async task.
+            #[cfg(not(dev))]
+            {
+                let update_handle = app.handle().clone();
+                tauri::async_runtime::spawn(async move {
+                    match tauri_plugin_updater::UpdaterExt::updater(&update_handle) {
+                        Ok(updater) => {
+                            match updater.check().await {
+                                Ok(Some(update)) => {
+                                    println!(
+                                        "[tauri] Update available: {} -> {}",
+                                        update.current_version,
+                                        update.version
+                                    );
+                                    let mut downloaded = 0u64;
+                                    match update
+                                        .download_and_install(
+                                            |chunk, total| {
+                                                downloaded += chunk as u64;
+                                                if let Some(t) = total {
+                                                    println!(
+                                                        "[tauri] Downloading update: {}/{}",
+                                                        downloaded, t
+                                                    );
+                                                }
+                                            },
+                                            || {
+                                                println!("[tauri] Update installed, restart required.");
+                                            },
+                                        )
+                                        .await
+                                    {
+                                        Ok(_) => {
+                                            println!("[tauri] Restarting for update...");
+                                            tauri_plugin_process::restart(
+                                                &update_handle.env(),
+                                            );
+                                        }
+                                        Err(e) => eprintln!("[tauri] Update install failed: {}", e),
+                                    }
+                                }
+                                Ok(None) => println!("[tauri] App is up to date."),
+                                Err(e) => eprintln!("[tauri] Update check failed: {}", e),
+                            }
+                        }
+                        Err(e) => eprintln!("[tauri] Updater init failed: {}", e),
+                    }
+                });
             }
 
             // ── Navigate to Flask once ready (async, non-blocking) ───

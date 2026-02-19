@@ -4,7 +4,10 @@ Flask Web Application for DoctorFill.
 
 from __future__ import annotations
 
+import json
 import logging
+import os
+import sys
 import tempfile
 import uuid
 from pathlib import Path
@@ -44,6 +47,53 @@ app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_BYTES
 
 # Initialize components
 template_manager = TemplateManager()
+
+
+def _read_app_version() -> str:
+    """
+    Read the app version from tauri.conf.json.
+
+    Search order:
+    1. DOCTORFILL_VERSION env var (injected by CI at build time)
+    2. tauri.conf.json next to the executable (PyInstaller bundle)
+    3. tauri.conf.json at project root (development)
+    """
+    # 1. Env var set by CI / build script
+    env_version = os.environ.get("DOCTORFILL_VERSION")
+    if env_version:
+        return env_version
+
+    # 2. Candidate paths for tauri.conf.json
+    candidates = []
+
+    # PyInstaller bundle: exe is next to src-tauri/ at install time,
+    # but during dev the conf lives at project_root/src-tauri/tauri.conf.json
+    exe_dir = Path(sys.executable).parent
+    candidates.append(exe_dir / "tauri.conf.json")
+    candidates.append(exe_dir.parent / "src-tauri" / "tauri.conf.json")
+
+    # Development: walk up from this file to find src-tauri/
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        candidate = parent / "src-tauri" / "tauri.conf.json"
+        candidates.append(candidate)
+        if parent.name == "DoctorFill-Python":
+            break
+
+    for path in candidates:
+        if path.exists():
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                version = data.get("version")
+                if version:
+                    return str(version)
+            except Exception:
+                pass
+
+    return "unknown"
+
+
+APP_VERSION = _read_app_version()
 
 
 @app.route("/")
@@ -165,6 +215,12 @@ def fill_form(form_id: str):
 def health():
     """Health check endpoint."""
     return jsonify({"status": "ok"})
+
+
+@app.route("/version", methods=["GET"])
+def version():
+    """Return the current app version."""
+    return jsonify({"version": APP_VERSION})
 
 
 # ──────────────────────────────────────────────────────────────

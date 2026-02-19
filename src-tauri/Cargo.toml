@@ -15,6 +15,8 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = ["devtools", "webview-data-url"] }
 tauri-plugin-shell = "2"
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 reqwest = "0.12"
 tokio = { version = "1", features = ["time"] }
 serde = { version = "1", features = ["derive"] }
