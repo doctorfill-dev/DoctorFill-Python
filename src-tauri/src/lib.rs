@@ -16,7 +16,20 @@ impl Sidecar {
         if let Ok(mut guard) = self.0.lock() {
             if let Some(child) = guard.take() {
                 println!("[tauri] Killing sidecar process...");
-                let _ = child.kill();
+                #[cfg(windows)]
+                {
+                    // On Windows, kill the entire process tree via taskkill /T
+                    // child.kill() only terminates the direct process, leaving
+                    // PyInstaller child processes (Python, Flask) still running.
+                    let pid = child.pid();
+                    let _ = std::process::Command::new("taskkill")
+                        .args(["/F", "/T", "/PID", &pid.to_string()])
+                        .output();
+                }
+                #[cfg(not(windows))]
+                {
+                    let _ = child.kill();
+                }
                 println!("[tauri] Sidecar killed.");
             }
         }
@@ -26,7 +39,7 @@ impl Sidecar {
     }
 
     /// Kill any process listening on FLASK_PORT.
-    /// Works on macOS and Linux via lsof, on Windows via netstat/taskkill.
+    /// Works on macOS and Linux via lsof, on Windows via taskkill by image name.
     fn kill_port_holder() {
         #[cfg(unix)]
         {
@@ -42,17 +55,10 @@ impl Sidecar {
         }
         #[cfg(windows)]
         {
-            // Find PID listening on port and kill it
-            let output = std::process::Command::new("cmd")
-                .args([
-                    "/C",
-                    &format!(
-                        "for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :{} ^| findstr LISTENING') do taskkill /F /PID %a",
-                        FLASK_PORT
-                    ),
-                ])
+            // Kill by image name — simple and reliable on Windows.
+            let _ = std::process::Command::new("taskkill")
+                .args(["/F", "/IM", "doctorfill-server.exe"])
                 .output();
-            let _ = output;
         }
     }
 }
@@ -88,6 +94,7 @@ fn spawn_sidecar_watchdog() {
     #[cfg(windows)]
     {
         // On Windows, use a PowerShell process to watch for parent death
+        // and kill the sidecar by image name (more reliable than netstat parsing).
         let _ = std::process::Command::new("powershell")
             .args([
                 "-WindowStyle", "Hidden",
@@ -95,9 +102,8 @@ fn spawn_sidecar_watchdog() {
                 &format!(
                     "while (Get-Process -Id {} -ErrorAction SilentlyContinue) {{ Start-Sleep -Seconds 1 }}; \
                      Start-Sleep -Seconds 1; \
-                     $p = netstat -aon | Select-String ':{} ' | Select-String 'LISTENING'; \
-                     if ($p) {{ $pid = ($p -split '\\s+')[-1]; Stop-Process -Id $pid -Force -ErrorAction SilentlyContinue }}",
-                    main_pid, FLASK_PORT
+                     Stop-Process -Name 'doctorfill-server' -Force -ErrorAction SilentlyContinue",
+                    main_pid
                 ),
             ])
             .stdin(std::process::Stdio::null())
