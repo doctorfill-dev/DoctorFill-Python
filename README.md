@@ -1,5 +1,7 @@
 # DoctorFill
 
+[![.github/workflows/release.yml](https://github.com/doctorfill-dev/DoctorFill-Python/actions/workflows/release.yml/badge.svg?branch=main)](https://github.com/doctorfill-dev/DoctorFill-Python/actions/workflows/release.yml)
+
 Application de remplissage intelligent de formulaires PDF medicaux.
 
 ## Architecture
