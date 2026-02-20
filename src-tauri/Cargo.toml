@@ -1,6 +1,6 @@
 [package]
 name = "doctorfill"
-version = "0.1.0"
+version = "0.2.3"
 description = "DoctorFill - Remplissage intelligent de formulaires PDF medicaux"
 authors = ["DoctorFill"]
 edition = "2021"
