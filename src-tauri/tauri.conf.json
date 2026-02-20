@@ -37,7 +37,7 @@
       "open": true
     },
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEE2MUZBREQyN0ZGNUY3RTAKUldUZzkvVi8wcTBmcHVTSEZwdTRrT3NPcktCMGVqcjBLOGZoWnlZRWNnMkxvdUZuL1ZiV0xZQ0UK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDczMkJBNzc3MUQ4NEI4ODAKUldTQXVJUWRkNmNyYy9xbVppazRaZXhkT0k3dkdyZm9jVlFNQWtNNHRCY3hkWnl4R1V4Z3YzWmYK",
       "endpoints": [
         "https://gist.githubusercontent.com/cutiips/456dec6f4ebfced5bc416332a2840ab4/raw/doctorfill-latest.json"
       ]
