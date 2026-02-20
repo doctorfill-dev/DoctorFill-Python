@@ -82,16 +82,13 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: "DoctorFill ${{ github.ref_name }}"
-          releaseBody: |
-            See the changelog for details.
+          tagName: ""
+          releaseName: ""
+          releaseBody: ""
           releaseDraft: false
-          prerelease: true
+          prerelease: false
           args: --target ${{ matrix.target }}
 
-      # Upload the per-platform .sig file as a release artifact
-      # so the update-gist job can fetch it below.
       - name: Upload signature artifact (Windows)
         if: runner.os == 'Windows'
         uses: actions/upload-artifact@v4
@@ -124,9 +121,32 @@ jobs:
           path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/*.tar.gz
           if-no-files-found: warn
 
-  # ── Update Gist after all platforms are built ──────────────────────────────
-  update-gist:
+  create-release:
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "DoctorFill $TAG" \
+            --notes "See the changelog for details." \
+            --prerelease
+
+          find artifacts -type f \( -name "*.exe" -o -name "*.tar.gz" -o -name "*.sig" \) -exec gh release upload "$TAG" {} \;
+
+  update-gist:
+    needs: create-release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -145,46 +165,26 @@ jobs:
           GIST_ID: ${{ secrets.GIST_ID }}
         run: |
           VERSION="${TAG#v}"
-
-          # ── Read signatures ──────────────────────────────────────────
           WIN_SIG=$(cat artifacts/sig-windows-x86_64/*.sig 2>/dev/null || echo "")
           MAC_SIG=$(cat artifacts/sig-darwin-aarch64/*.tar.gz.sig 2>/dev/null || echo "")
-
-          # ── Derive download URLs from the GitHub release ─────────────
           WIN_FILE=$(ls artifacts/installer-windows-x86_64/*-setup.exe 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
           MAC_FILE=$(ls artifacts/installer-darwin-aarch64/*.tar.gz 2>/dev/null | head -1 | xargs basename 2>/dev/null || echo "")
-
           BASE_URL="https://github.com/${REPO}/releases/download/${TAG}"
           WIN_URL="${BASE_URL}/${WIN_FILE}"
           MAC_URL="${BASE_URL}/${MAC_FILE}"
-
-          # ── Build latest.json ─────────────────────────────────────────
           PUB_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-          jq -n \
-            --arg version   "$VERSION" \
-            --arg notes     "See https://github.com/${REPO}/releases/tag/${TAG} for details." \
-            --arg pub_date  "$PUB_DATE" \
-            --arg win_url   "$WIN_URL" \
-            --arg win_sig   "$WIN_SIG" \
-            --arg mac_url   "$MAC_URL" \
-            --arg mac_sig   "$MAC_SIG" \
-            '{
-              version: $version,
-              notes: $notes,
-              pub_date: $pub_date,
-              platforms: {
-                "windows-x86_64": {url: $win_url, signature: $win_sig},
-                "darwin-aarch64":  {url: $mac_url, signature: $mac_sig},
-                "darwin-x86_64":   {url: $mac_url, signature: $mac_sig}
-              }
-            }' > doctorfill-latest.json
-
-          # ── Push to Gist ──────────────────────────────────────────────
+          cat > doctorfill-latest.json <<EOF
+{
+  "version": "${VERSION}",
+  "notes": "See https://github.com/${REPO}/releases/tag/${TAG} for details.",
+  "pub_date": "${PUB_DATE}",
+  "platforms": {
+    "windows-x86_64": {"url": "${WIN_URL}", "signature": "${WIN_SIG}"},
+    "darwin-aarch64": {"url": "${MAC_URL}", "signature": "${MAC_SIG}"},
+    "darwin-x86_64": {"url": "${MAC_URL}", "signature": "${MAC_SIG}"}
+  }
+}
+EOF
           CONTENT=$(jq -Rs . < doctorfill-latest.json)
-          curl -s -X PATCH \
-            -H "Authorization: token ${GIST_TOKEN}" \
-            -H "Content-Type: application/json" \
-            -d "{\"files\":{\"doctorfill-latest.json\":{\"content\":${CONTENT}}}}" \
-            "https://api.github.com/gists/${GIST_ID}"
-
+          curl -s -X PATCH -H "Authorization: token ${GIST_TOKEN}" -H "Content-Type: application/json" -d "{\"files\":{\"doctorfill-latest.json\":{\"content\":${CONTENT}}}}" "https://api.github.com/gists/${GIST_ID}"
           echo "Gist updated for version ${VERSION}"
